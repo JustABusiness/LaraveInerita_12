@@ -6,6 +6,7 @@ import CustomPageHeading from '@/components/ui/customer-page-heading';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import AppLayout from '@/layouts/app-layout';
 import api from '@/lib/api';
 import { dashboard } from '@/routes/index';
@@ -42,10 +43,12 @@ export default function UserCatalogueSave({ id }: UserCatalogueSaveProps) {
     const [loading, setLoading] = useState(isEdit);
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [permissions, setPermissions] = useState<{id: number, description: string}[]>([]);
     const [formData, setFormData] = useState({
         name: '',
         canonical: '',
         description: '',
+        permission_ids: [] as number[],
     });
 
     useEffect(() => {
@@ -54,9 +57,10 @@ export default function UserCatalogueSave({ id }: UserCatalogueSaveProps) {
                 try {
                     const response = await api.get(`/user_catalogue/${id}`);
                     if (response.data.status === 'success') {
-                        const { name, canonical, description } =
+                        const { name, canonical, description, permissions } =
                             response.data.data;
-                        setFormData({ name, canonical, description });
+                        const permission_ids = permissions ? permissions.map((p: any) => p.id) : [];
+                        setFormData({ name, canonical, description, permission_ids });
                     }
                 } catch (error) {
                     toast.error('Không thể tải thông tin bản ghi');
@@ -67,6 +71,20 @@ export default function UserCatalogueSave({ id }: UserCatalogueSaveProps) {
             fetchData();
         }
     }, [id, isEdit]);
+
+    useEffect(() => {
+        const fetchPermissions = async () => {
+            try {
+                const response = await api.get('/permission', { params: { perpage: 1000 } });
+                if (response.data.status === 'success') {
+                    setPermissions(response.data.data.data || []);
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải danh sách quyền', error);
+            }
+        };
+        fetchPermissions();
+    }, []);
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -99,7 +117,7 @@ export default function UserCatalogueSave({ id }: UserCatalogueSaveProps) {
                 if (redirectAfter) {
                     router.visit('/user_catalogue');
                 } else if (!isEdit) {
-                    setFormData({ name: '', canonical: '', description: '' });
+                    setFormData({ name: '', canonical: '', description: '', permission_ids: [] });
                 }
             }
         } catch (error: any) {
@@ -230,6 +248,55 @@ export default function UserCatalogueSave({ id }: UserCatalogueSaveProps) {
                                             message={errors.description}
                                             className="mt-[5px]"
                                         />
+                                    </div>
+                                    
+                                    <div className="mb-[24px]">
+                                        <div className="flex items-center justify-between mb-[10px]">
+                                            <Label className="text-[13px] font-semibold text-zinc-700">
+                                                Phân quyền
+                                            </Label>
+                                            <div className="flex space-x-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, permission_ids: permissions.map(p => p.id) }))}
+                                                    className="text-[13px] font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
+                                                >
+                                                    Chọn tất cả
+                                                </button>
+                                                <span className="text-zinc-300">|</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, permission_ids: [] }))}
+                                                    className="text-[13px] font-medium text-rose-600 hover:text-rose-800 transition-colors"
+                                                >
+                                                    Bỏ chọn tất cả
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
+                                            {permissions.map((permission) => (
+                                                <div key={permission.id} className="flex items-center space-x-2">
+                                                    <Checkbox
+                                                        id={`permission-${permission.id}`}
+                                                        checked={formData.permission_ids.includes(permission.id)}
+                                                        onCheckedChange={(checked) => {
+                                                            setFormData(prev => ({
+                                                                ...prev,
+                                                                permission_ids: checked 
+                                                                    ? [...prev.permission_ids, permission.id]
+                                                                    : prev.permission_ids.filter(id => id !== permission.id)
+                                                            }));
+                                                        }}
+                                                    />
+                                                    <Label
+                                                        htmlFor={`permission-${permission.id}`}
+                                                        className="text-[13px] text-black font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                    >
+                                                        {permission.description}
+                                                    </Label>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
 
                                     <div className="flex justify-end space-x-3 border-t border-zinc-100 pt-4">

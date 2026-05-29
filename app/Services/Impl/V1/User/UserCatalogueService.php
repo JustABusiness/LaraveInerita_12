@@ -12,7 +12,7 @@ class UserCatalogueService extends BaseService implements UserCatalogueServiceIn
 {
     protected $repository;
     protected $perpage;
-    protected $with = ['creators', 'users'];
+    protected $with = ['creators', 'users', 'permissions'];
     protected $simpleFilter = ['id', 'publish'];
     protected $searchFields = ['name', 'canonical', 'description'];
 
@@ -32,6 +32,14 @@ class UserCatalogueService extends BaseService implements UserCatalogueServiceIn
         } 
         
         $this->modelData['user_id'] = Auth::id();
+        return $this;
+    }
+
+    public function afterSave(): static
+    {
+        if ($this->request->has('permission_ids')) {
+            $this->model->permissions()->sync($this->request->input('permission_ids'));
+        }
         return $this;
     }
 

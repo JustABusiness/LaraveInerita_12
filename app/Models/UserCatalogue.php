@@ -47,5 +47,10 @@ class UserCatalogue extends Model
       return $this->relationtable;
    }
 
+   public function permissions(): BelongsToMany
+   {
+      return $this->belongsToMany(Permission::class, 'user_catalogue_permission');
+   }
+
 
 }

@@ -28,6 +28,8 @@ class StoreRequest extends FormRequest
              'canonical' => 'required|string|unique:user_catalogues',
              'description' => 'sometimes|string',
              'publish' => 'sometimes|in:1,2',
+             'permission_ids' => 'sometimes|array',
+             'permission_ids.*' => 'exists:permissions,id',
         ];
     }
 

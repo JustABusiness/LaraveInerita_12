@@ -34,7 +34,9 @@ class UpdateRequest extends FormRequest
                 Rule::unique('user_catalogues')->ignore($this->route('user_catalogue')),
             ], 
             'description' => 'sometimes|string',
-            'publish' => 'sometimes|in:1,2'
+            'publish' => 'sometimes|in:1,2',
+            'permission_ids' => 'sometimes|array',
+            'permission_ids.*' => 'exists:permissions,id',
         ];
     }
 
