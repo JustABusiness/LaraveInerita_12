@@ -11,7 +11,6 @@ class UserService extends BaseService implements UserServiceInterface
 {
     protected $repository;
     protected $perpage;
-    protected $with = ['creators'];
     protected $searchFields = ['name', 'phone', 'description', 'email']; 
 
     public function __construct(UserRepo $repository)
