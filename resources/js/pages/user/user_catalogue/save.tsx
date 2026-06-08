@@ -253,7 +253,7 @@ export default function UserCatalogueSave({ id }: UserCatalogueSaveProps) {
                                     <div className="mb-[24px]">
                                         <div className="flex items-center justify-between mb-[10px]">
                                             <Label className="text-[13px] font-semibold text-zinc-700">
-                                                Phân quyền
+                                                Phân quyền ({formData.permission_ids.length} đã chọn)
                                             </Label>
                                             <div className="flex space-x-2">
                                                 <button

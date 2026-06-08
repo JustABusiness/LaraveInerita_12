@@ -11,4 +11,5 @@ interface BaseServiceInteface
     public function destroy(int $id);
     public function show(int $id);
     public function bulkDestroy(Request $request);
+    public function updateStatus(array $post = []);
 }

@@ -6,5 +6,4 @@ use App\Services\Interfaces\BaseServiceInteface;
 
 interface UserServiceInterface extends BaseServiceInteface
 {
-
 }

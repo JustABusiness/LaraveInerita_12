@@ -11,7 +11,8 @@ class UserService extends BaseService implements UserServiceInterface
 {
     protected $repository;
     protected $perpage;
-    protected $searchFields = ['name', 'phone', 'description', 'email']; 
+    protected $searchFields = ['name','email', 'address']; 
+    protected $with = ['user_catalogue'];
 
     public function __construct(UserRepo $repository)
     {
@@ -23,7 +24,31 @@ class UserService extends BaseService implements UserServiceInterface
     {
         $fillable = $this->repository->getFillable();
         $this->modelData = $this->request->only($fillable);
-        $this->modelData['user_id'] = Auth::id();
+        
+        if ($this->request->filled('password')) {
+            $this->modelData['password'] = bcrypt($this->request->input('password'));
+        } else {
+            unset($this->modelData['password']);
+        }
+
+        return $this;
+    }
+
+    protected function beforeSave(): static
+    {
+        return $this;
+    }
+
+    protected function withRelation(): static
+    {
+        if ($this->request->filled('user_catalogue_ids')) {
+            $this->model->user_catalogue()->sync($this->request->input('user_catalogue_ids'));
+        }
+        return $this;
+    }
+
+    protected function afterSave(): static
+    {
         return $this;
     }
 

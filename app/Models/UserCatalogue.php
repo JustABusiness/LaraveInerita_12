@@ -23,7 +23,8 @@ class UserCatalogue extends Model
 
    protected $relationtable = [
       'users',
-      'creators'
+      'creators',
+      'permissions'
    ];
 
    protected $casts = [

@@ -36,6 +36,7 @@ interface User {
     name: string;
     email: string;
     publish?: number;
+    birthday?: string;
     created_at: string;
 }
 
@@ -107,6 +108,25 @@ export default function UserIndex() {
         } catch (error) {
             toast.error('Xoá các bản ghi thất bại');
             console.error(error);
+        }
+    };
+
+    const handleStatusChange = async (id: number, currentValue: number) => {
+        const newValue = currentValue === 1 ? 2 : 1;
+        try {
+            const response = await api.post('/user/change-status', {
+                id: id,
+                value: newValue,
+                field: 'publish'
+            });
+            if (response.data.status === 'success') {
+                toast.success('Cập nhật trạng thái thành công');
+                setUsers(prev => prev.map(user => 
+                    user.id === id ? { ...user, publish: newValue } : user
+                ));
+            }
+        } catch (error) {
+            toast.error('Cập nhật trạng thái thất bại');
         }
     };
 
@@ -183,6 +203,8 @@ export default function UserIndex() {
                                         <th className="h-12 px-4 text-left align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px] w-16">ID</th>
                                         <th className="h-12 px-4 text-left align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px]">Tên thành viên</th>
                                         <th className="h-12 px-4 text-left align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px]">Email</th>
+                                        <th className="h-12 px-4 text-left align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px]">Ngày sinh</th>
+                                        <th className="h-12 px-4 text-left align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px]">Trạng thái</th>
                                         <th className="h-12 px-4 text-left align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px]">Ngày tạo</th>
                                         <th className="h-12 px-4 text-right align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px] w-24">Thao tác</th>
                                     </tr>
@@ -190,7 +212,7 @@ export default function UserIndex() {
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td colSpan={6} className="p-20 text-center bg-white">
+                                            <td colSpan={7} className="p-20 text-center bg-white">
                                                 <div className="flex flex-col items-center gap-2">
                                                     <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
                                                     <span className="text-zinc-400 text-sm">Đang tải dữ liệu...</span>
@@ -209,6 +231,22 @@ export default function UserIndex() {
                                                 <td className="p-4 align-middle font-medium text-zinc-900">{item.id}</td>
                                                 <td className="p-4 align-middle text-zinc-700 font-medium">{item.name}</td>
                                                 <td className="p-4 align-middle text-zinc-600">{item.email}</td>
+                                                <td className="p-4 align-middle text-zinc-600">{item.birthday || '---'}</td>
+                                                <td className="p-4 align-middle text-zinc-600">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleStatusChange(item.id, item.publish || 2)}
+                                                        className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                                            item.publish === 1 ? 'bg-indigo-600' : 'bg-zinc-200'
+                                                        }`}
+                                                    >
+                                                        <span
+                                                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                                                item.publish === 1 ? 'translate-x-4' : 'translate-x-0'
+                                                            }`}
+                                                        />
+                                                    </button>
+                                                </td>
                                                 <td className="p-4 align-middle text-zinc-500">{item.created_at}</td>
                                                 <td className="p-4 align-middle text-right">
                                                     <div className="flex justify-end gap-1">

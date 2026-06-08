@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend\V1\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Backend\BaseController;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Http\Requests\Permission\Permission\StoreRequest;
 use App\Http\Requests\Permission\Permission\UpdateRequest;
 use App\Http\Requests\Permission\Permission\BulkDestroyRequest;
@@ -12,6 +13,7 @@ use App\Services\Interfaces\Permission\PermissionServiceInterface as PermissionS
 
 class PermissionController extends BaseController
 { 
+    use AuthorizesRequests;
     protected $service;
 
     public function __construct(  
@@ -22,7 +24,8 @@ class PermissionController extends BaseController
 
     public function index(Request $request): JsonResponse
     {
-        $data = $this->service->paginate($request);
+        // $this->authorize('modules', 'permission.index');
+        $data = $this->service->paginate($request); 
         return $this->responseSuccess($data);
     }
 

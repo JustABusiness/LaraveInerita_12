@@ -17,6 +17,11 @@ class StoreRequest extends FormRequest
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
+            'user_catalogue_ids' => 'required|array|min:1',
+            'user_catalogue_ids.*' => 'exists:user_catalogues,id',
+            'publish' => 'integer|in:1,2',
+            'address' => 'nullable|string|max:255',
+            'birthday' => 'nullable|date',
         ];
     }
 
@@ -29,6 +34,8 @@ class StoreRequest extends FormRequest
             'email.unique' => 'Email đã tồn tại',
             'password.required' => 'Bạn chưa nhập mật khẩu',
             'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự',
+            'user_catalogue_ids.required' => 'Bạn chưa chọn nhóm thành viên',
+            'user_catalogue_ids.min' => 'Bạn chưa chọn nhóm thành viên',
         ];
     }
 }

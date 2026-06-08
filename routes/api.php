@@ -13,5 +13,6 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('permission', \App\Http\Controllers\Backend\V1\Permission\PermissionController::class);
 
     Route::post('user/bulk-destroy', [\App\Http\Controllers\Backend\V1\User\UserController::class, 'bulkDestroy']);
+    Route::post('user/change-status', [\App\Http\Controllers\Backend\V1\User\UserController::class, 'changeStatus']);
     Route::apiResource('user', \App\Http\Controllers\Backend\V1\User\UserController::class);
 });

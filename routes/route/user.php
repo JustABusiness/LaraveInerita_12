@@ -26,7 +26,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('user.create');
 
     Route::get('/user/{id}/edit', function ($id) {
-        return Inertia::render('user/user/save', ['id' => $id]);
+        return Inertia::render('user/user/save', [
+            'id' => $id
+        ]);
     })->name('user.edit');
 });
 

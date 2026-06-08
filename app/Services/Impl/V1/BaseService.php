@@ -126,6 +126,27 @@ abstract class BaseService implements BaseServiceInteface
         }
     }
 
+    public function updateStatus(array $post = [])
+    {
+        try {
+            return $this->beginTransaction()
+                ->updateStatusModel($post)
+                ->commit()
+                ->getResult();
+        } catch (\Throwable $th) {
+            $this->rollback();
+            return false;
+        }
+    }
+
+    private function updateStatusModel(array $post = []): static
+    {
+        $payload[$post['field']] = $post['value'];
+        $this->model = $this->repository->update($post['id'], $payload);
+        $this->result = $this->model;
+        return $this;
+    }
+
     public function bulkDestroyModel()
     {
         $this->result = $this->repository->bulkDestroy($this->request->input('ids', []));

@@ -23,6 +23,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'publish',
+        'address',
+        'birthday',
     ];
 
     /**
@@ -48,6 +51,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'publish' => 'integer',
+            'birthday' => 'date',
+            'created_at' => 'datetime:Y-m-d H:i',
+            'updated_at' => 'datetime:Y-m-d H:i',
         ];
+    }
+
+    public function user_catalogue()
+    {
+        return $this->belongsToMany(UserCatalogue::class, 'user_catalogue_user', 'user_id', 'user_catalogue_id');
     }
 }
