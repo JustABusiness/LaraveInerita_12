@@ -8,10 +8,25 @@ class BaseRepo
 {
     protected $model;
     protected $payload;
+    protected $specs = [];
 
     public function __construct($model)
     {
         $this->model = $model;
+    }
+
+    public function pushSpec(\Closure $spec): static
+    {
+        $this->specs[] = $spec;
+        return $this;
+    }
+
+    public function applySpecs($query)
+    {
+        foreach ($this->specs as $spec) {
+            $query = $spec($query);
+        }
+        return $query;
     }
 
     public function getFillable(): array
@@ -50,6 +65,8 @@ class BaseRepo
             ->complexFilter($specs['filter']['complex'] ?? [])
             ->dateFilter($specs['filter']['date'] ?? [])
             ->simpleFilter($specs['filter']['simple'] ?? []);
+
+        $query = $this->applySpecs($query);
 
         $query->when(!empty($specs['sort']), function ($query) use ($specs) {
             return $query->orderBy($specs['sort'][0], $specs['sort'][1] ?? 'asc');

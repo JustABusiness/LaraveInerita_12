@@ -26,6 +26,7 @@ class User extends Authenticatable
         'publish',
         'address',
         'birthday',
+        'description'
     ];
 
     /**
@@ -53,6 +54,7 @@ class User extends Authenticatable
             'two_factor_confirmed_at' => 'datetime',
             'publish' => 'integer',
             'birthday' => 'date',
+            'description' => 'string',
             'created_at' => 'datetime:Y-m-d H:i',
             'updated_at' => 'datetime:Y-m-d H:i',
         ];

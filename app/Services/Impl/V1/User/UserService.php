@@ -20,6 +20,20 @@ class UserService extends BaseService implements UserServiceInterface
         parent::__construct($repository);
     }
 
+    protected function specifications(): array
+    {
+        $specs = parent::specifications();
+        if ($this->request->filled('user_catalogue_id')) {
+            $userCatalogueId = $this->request->input('user_catalogue_id');
+            $this->repository->pushSpec(function($query) use ($userCatalogueId) {
+                return $query->whereHas('user_catalogue', function($q) use ($userCatalogueId) {
+                    $q->where('user_catalogues.id', $userCatalogueId);
+                });
+            });
+        }
+        return $specs;
+    }
+
     protected function prepareModelData(): static
     {
         $fillable = $this->repository->getFillable();

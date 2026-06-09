@@ -23,6 +23,7 @@ class UpdateRequest extends FormRequest
             'publish' => 'integer|in:1,2',
             'address' => 'nullable|string|max:255',
             'birthday' => 'nullable|date',
+            'description' => 'nullable|string',
         ];
     }
 

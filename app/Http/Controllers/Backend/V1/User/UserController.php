@@ -27,8 +27,11 @@ class UserController extends BaseController
     public function index(Request $request): JsonResponse
     {
         $data = $this->service->paginate($request);
+
         if ($request->has('get_catalogues')) {
-            $userCatalogues = $this->userCatalogueService->paginate(new Request(['type' => 'all']));
+            $catRequest = new Request(['type' => 'all']);
+            $userCatalogues = $this->userCatalogueService->paginate($catRequest);
+
             return $this->responseSuccess([
                 'users' => $data,
                 'user_catalogues' => $userCatalogues

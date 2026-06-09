@@ -6,6 +6,7 @@ import CustomNotice from '@/components/ui/custom-notice';
 import CustomPageHeading from '@/components/ui/customer-page-heading';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import api from '@/lib/api';
 import { dashboard } from '@/routes/index';
@@ -44,6 +45,7 @@ export default function UserSave({ id }: UserSaveProps) {
         publish: '1',
         address: '',
         birthday: '',
+        description: '',
     });
 
     useEffect(() => {
@@ -64,6 +66,7 @@ export default function UserSave({ id }: UserSaveProps) {
                             publish: user.publish?.toString() || '1',
                             address: user.address || '',
                             birthday: user.birthday || '',
+                            description: user.description || '',
                         });
                     }
                 } else {
@@ -85,7 +88,7 @@ export default function UserSave({ id }: UserSaveProps) {
         fetchData();
     }, [id, isEdit]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
         if (errors[name]) {
@@ -143,6 +146,7 @@ export default function UserSave({ id }: UserSaveProps) {
                         publish: '1',
                         address: '',
                         birthday: '',
+                        description: '',
                     });
                 }
             }
@@ -430,6 +434,28 @@ export default function UserSave({ id }: UserSaveProps) {
                                                 className="mt-[5px]"
                                             />
                                         </div>
+                                    </div>
+
+                                    <div className="mb-[24px]">
+                                        <Label
+                                            htmlFor="description"
+                                            className="mb-[10px] text-[13px] font-semibold text-zinc-700"
+                                        >
+                                            Ghi chú / Mô tả
+                                        </Label>
+                                        <Textarea
+                                            id="description"
+                                            name="description"
+                                            value={formData.description}
+                                            onChange={handleChange}
+                                            className="mt-1 text-zinc-600 block w-full rounded-[5px] border-zinc-200 text-black focus:border-indigo-500 focus:ring-indigo-500"
+                                            placeholder="Nhập ghi chú thêm..."
+                                            rows={4}
+                                        />
+                                        <InputError
+                                            message={errors.description}
+                                            className="mt-[5px]"
+                                        />
                                     </div>
 
                                     <div className="flex justify-end space-x-3 border-t border-zinc-100 pt-4">

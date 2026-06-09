@@ -3,6 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import CustomCard from '@/components/ui/custom-card';
 import CustomPageHeading from '@/components/ui/customer-page-heading';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes/index';
 import { type BreadcrumbItem, type PageConfig } from '@/types';
@@ -37,21 +44,26 @@ interface User {
     email: string;
     publish?: number;
     birthday?: string;
+    description?: string;
+    user_catalogue?: { id: number; name: string }[];
     created_at: string;
 }
 
 export default function UserIndex() {
     const [users, setUsers] = useState<User[]>([]);
+    const [userCatalogues, setUserCatalogues] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [filterCatalogueId, setFilterCatalogueId] = useState<string>('all');
 
-    const fetchUsers = async (searchQuery = '') => {
+    const fetchUsers = async (searchQuery = '', catalogueId = 'all') => {
         try {
             setLoading(true);
             const response = await api.get('/user', {
                 params: {
-                    keyword: searchQuery || undefined
+                    keyword: searchQuery || undefined,
+                    user_catalogue_id: catalogueId !== 'all' ? catalogueId : undefined
                 }
             });
             if (response.data.status === 'success') {
@@ -64,6 +76,21 @@ export default function UserIndex() {
             setLoading(false);
         }
     };
+
+    const fetchCatalogues = async () => {
+        try {
+            const response = await api.get('/user_catalogue', { params: { type: 'all' } });
+            if (response.data.status === 'success') {
+                setUserCatalogues(response.data.data || []);
+            }
+        } catch (error) {
+            console.error('Không thể tải nhóm thành viên', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCatalogues();
+    }, []);
 
     const handleDelete = async (id: number) => {
         if (!confirm('Bạn có chắc chắn muốn xoá bản ghi này?')) return;
@@ -132,11 +159,11 @@ export default function UserIndex() {
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
-            fetchUsers(searchTerm);
+            fetchUsers(searchTerm, filterCatalogueId);
         }, 500);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm]);
+    }, [searchTerm, filterCatalogueId]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -166,6 +193,24 @@ export default function UserIndex() {
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
+                                </div>
+                                <div className="w-[200px]">
+                                    <Select 
+                                        value={filterCatalogueId} 
+                                        onValueChange={setFilterCatalogueId}
+                                    >
+                                        <SelectTrigger className="h-10 rounded-[5px] border-zinc-200 text-black focus:border-indigo-500 focus:ring-indigo-500">
+                                            <SelectValue placeholder="Tất cả nhóm" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">Tất cả nhóm</SelectItem>
+                                            {userCatalogues.map((item) => (
+                                                <SelectItem key={item.id} value={item.id.toString()}>
+                                                    {item.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
@@ -203,7 +248,9 @@ export default function UserIndex() {
                                         <th className="h-12 px-4 text-left align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px] w-16">ID</th>
                                         <th className="h-12 px-4 text-left align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px]">Tên thành viên</th>
                                         <th className="h-12 px-4 text-left align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px]">Email</th>
+                                        <th className="h-12 px-4 text-left align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px]">Nhóm thành viên</th>
                                         <th className="h-12 px-4 text-left align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px]">Ngày sinh</th>
+                                        <th className="h-12 px-4 text-left align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px]">Mô tả</th>
                                         <th className="h-12 px-4 text-left align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px]">Trạng thái</th>
                                         <th className="h-12 px-4 text-left align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px]">Ngày tạo</th>
                                         <th className="h-12 px-4 text-right align-middle font-bold text-zinc-900 uppercase tracking-wider text-[11px] w-24">Thao tác</th>
@@ -231,7 +278,23 @@ export default function UserIndex() {
                                                 <td className="p-4 align-middle font-medium text-zinc-900">{item.id}</td>
                                                 <td className="p-4 align-middle text-zinc-700 font-medium">{item.name}</td>
                                                 <td className="p-4 align-middle text-zinc-600">{item.email}</td>
+                                                <td className="p-4 align-middle">
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {item.user_catalogue && item.user_catalogue.length > 0 ? (
+                                                            item.user_catalogue.map((cat) => (
+                                                                <span key={cat.id} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                                                    {cat.name}
+                                                                </span>
+                                                            ))
+                                                        ) : (
+                                                            <span className="text-zinc-400 italic text-[11px]">Chưa gán nhóm</span>
+                                                        )}
+                                                    </div>
+                                                </td>
                                                 <td className="p-4 align-middle text-zinc-600">{item.birthday || '---'}</td>
+                                                <td className="p-4 align-middle text-zinc-600 max-w-[200px] truncate" title={item.description}>
+                                                    {item.description || '---'}
+                                                </td>
                                                 <td className="p-4 align-middle text-zinc-600">
                                                     <button
                                                         type="button"
