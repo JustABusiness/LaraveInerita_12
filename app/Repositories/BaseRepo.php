@@ -64,7 +64,8 @@ class BaseRepo
             ->keyword($specs['filter']['keyword'] ?? [])
             ->complexFilter($specs['filter']['complex'] ?? [])
             ->dateFilter($specs['filter']['date'] ?? [])
-            ->simpleFilter($specs['filter']['simple'] ?? []);
+            ->withFilter($specs['filter']['with'] ?? [])
+            ->simpleFilter($specs['filter']['simple'] ?? []); 
 
         $query = $this->applySpecs($query);
 

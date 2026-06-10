@@ -24,6 +24,7 @@ abstract class BaseService implements BaseServiceInteface
     protected $complexFilter = ['id'];
     protected $searchFields = ['name'];
     protected $dateFilter = ['created_at', 'updated_at'];
+    protected $withFilter = [];
     protected $sort = ['id', 'desc'];
 
     public function __construct(mixed $repository)

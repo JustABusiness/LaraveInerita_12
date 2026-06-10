@@ -33,6 +33,7 @@ trait HasSpecBuilder
                 ],
                 'complex' => $this->build($this->complexFilter),
                 'date' => $this->build($this->dateFilter),
+                'with' => $this->build($this->withFilter),
             ]
         ];
     }

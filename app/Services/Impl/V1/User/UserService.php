@@ -2,7 +2,6 @@
 
 namespace App\Services\Impl\V1\User;
 
-use Illuminate\Support\Facades\Auth;
 use App\Services\Impl\V1\BaseService;
 use App\Repositories\User\UserRepo;
 use App\Services\Interfaces\User\UserServiceInterface;
@@ -13,6 +12,7 @@ class UserService extends BaseService implements UserServiceInterface
     protected $perpage;
     protected $searchFields = ['name','email', 'address']; 
     protected $with = ['user_catalogue'];
+    protected $withFilter = ['user_catalogue_id'];
 
     public function __construct(UserRepo $repository)
     {
@@ -22,16 +22,7 @@ class UserService extends BaseService implements UserServiceInterface
 
     protected function specifications(): array
     {
-        $specs = parent::specifications();
-        if ($this->request->filled('user_catalogue_id')) {
-            $userCatalogueId = $this->request->input('user_catalogue_id');
-            $this->repository->pushSpec(function($query) use ($userCatalogueId) {
-                return $query->whereHas('user_catalogue', function($q) use ($userCatalogueId) {
-                    $q->where('user_catalogues.id', $userCatalogueId);
-                });
-            });
-        }
-        return $specs;
+        return parent::specifications();
     }
 
     protected function prepareModelData(): static
@@ -48,21 +39,11 @@ class UserService extends BaseService implements UserServiceInterface
         return $this;
     }
 
-    protected function beforeSave(): static
-    {
-        return $this;
-    }
-
     protected function withRelation(): static
     {
         if ($this->request->filled('user_catalogue_ids')) {
             $this->model->user_catalogue()->sync($this->request->input('user_catalogue_ids'));
         }
-        return $this;
-    }
-
-    protected function afterSave(): static
-    {
         return $this;
     }
 

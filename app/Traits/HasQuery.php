@@ -87,6 +87,18 @@ trait HasQuery
         return $query;
     }
 
+    public function scopeWithFilter($query, array $filters = [])
+    {
+        if (count($filters)) {
+            foreach ($filters as $model => $condition) {
+                $query->whereHas($model, function ($subQuery) use ($condition) {
+                    $this->applyRelationRecursive($subQuery, $condition);
+                });
+            }
+        }
+        return $query;
+    }
+
     public function scopeDateFilter($query, array $filters = [])
     {
         if (is_array($filters) && count($filters)) {
@@ -125,6 +137,32 @@ trait HasQuery
                 }
             }
         }
+        return $query;
+    }
+
+    private function applyRelationRecursive($query, array $conditions = [])
+    {
+        $fieldConditions = [];
+        $relationConditions = [];
+        $operatorArray = array_flip(['gt', 'gte', 'lt', 'lte', 'eq', 'between', 'like', 'in']);
+
+        foreach ($conditions as $key => $value) {
+            if (isset($value) && is_array($value) && !array_key_exists($key, $operatorArray)) {
+                $relationConditions[$key] = $value; 
+            } else {
+                $fieldConditions[$key] = $value;
+            }
+        }
+        
+        $this->scopeComplexFilter($query, $fieldConditions);
+        if (is_array($relationConditions) && count($relationConditions)){
+            foreach ($relationConditions as $relation => $condition) {
+                $query->whereHas($relation, function ($subQuery) use ($condition) {
+                    $this->applyRelationRecursive($subQuery, $condition);
+                });
+            }
+        }
+
         return $query;
     }
 }
