@@ -40,24 +40,19 @@ const mainNavItems: NavItem[] = [
                 url: '/user',
             },
         ],
-    }, 
+    },
 ];
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
+        title: 'Tài liệu IELTS',
+        href: '#',
+        icon: BookOpen,
+    },
+    {
+        title: 'Đề thi mẫu (Mock)',
+        href: '#',
         icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-    {
-        title: 'Support',
-        href: 'https://l aravel.com/docs/starter-kits#react',
-        icon: BookOpen,
     },
 ];
 

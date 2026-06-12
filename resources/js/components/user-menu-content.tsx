@@ -49,7 +49,7 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
                 <Link
-                    className="block w-full text-destructive focus:bg-destructive/10 focus:text-destructive group"
+                    className="group block w-full text-destructive focus:bg-destructive/10 focus:text-destructive"
                     href={logout()}
                     as="button"
                     onClick={handleLogout}

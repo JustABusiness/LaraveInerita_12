@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Backend\V1\User\UserCatalogueController;
 use Inertia\Inertia;
 
 Route::middleware(['auth', 'verified'])->group(function () {

@@ -65,7 +65,9 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
                 <div className="text-center text-sm text-muted-foreground">
                     Remember your password?{' '}
-                    <TextLink href={login()} className="font-semibold">Log in</TextLink>
+                    <TextLink href={login()} className="font-semibold">
+                        Log in
+                    </TextLink>
                 </div>
             </div>
         </AuthLayout>

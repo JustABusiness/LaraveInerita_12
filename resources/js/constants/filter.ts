@@ -1,3 +1,1 @@
-interface IFilter {
-    
-}
+interface IFilter {}

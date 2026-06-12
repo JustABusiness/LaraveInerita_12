@@ -130,20 +130,10 @@ export default function PermissionSave({ id }: PermissionSaveProps) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head
-                title={
-                    isEdit
-                        ? `Sửa: ${formData.name}`
-                        : 'Thêm mới quyền'
-                }
-            />
+            <Head title={isEdit ? `Sửa: ${formData.name}` : 'Thêm mới quyền'} />
             <div className="page-wrapper flex h-full flex-1 flex-col gap-4 overflow-x-auto bg-zinc-50/50">
                 <CustomPageHeading
-                    heading={
-                        isEdit
-                            ? 'Cập nhật quyền'
-                            : 'Thêm mới quyền'
-                    }
+                    heading={isEdit ? 'Cập nhật quyền' : 'Thêm mới quyền'}
                     breadcrumbs={breadcrumbs}
                 />
                 <div className="page-container px-6 pb-10">
@@ -202,7 +192,7 @@ export default function PermissionSave({ id }: PermissionSaveProps) {
                                                 name="canonical"
                                                 value={formData.canonical}
                                                 onChange={handleChange}
-                                                className="mt-1 text-black block w-full rounded-[5px] border-zinc-200 focus:border-indigo-500 focus:ring-indigo-500"
+                                                className="mt-1 block w-full rounded-[5px] border-zinc-200 text-black focus:border-indigo-500 focus:ring-indigo-500"
                                                 placeholder="Nhập từ khoá (ví dụ: permission.index)..."
                                             />
                                             <InputError

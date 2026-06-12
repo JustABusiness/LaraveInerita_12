@@ -7,9 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
 import { register } from '@/routes';
-import { store } from '@/routes/login';
 import { request } from '@/routes/password';
-import { Form, Head } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { AtSign, KeyRound } from 'lucide-react';
 
 interface LoginProps {
@@ -18,9 +17,9 @@ interface LoginProps {
     canRegister: boolean;
 }
 
-import { useState } from 'react';
 import api from '@/lib/api';
 import { router } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function Login({
     status,
@@ -37,7 +36,7 @@ export default function Login({
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -49,7 +48,7 @@ export default function Login({
             // Attempt login (posting to standard Fortify route)
             // Axios will automatically handle the CSRF token if configured correctly
             await api.post('/login', formData, { baseURL: '' });
-            
+
             // If success, redirect to dashboard
             router.visit('/dashboard');
         } catch (error: any) {
@@ -73,14 +72,16 @@ export default function Login({
         >
             <Head title="Log in" />
 
-            <form
-                onSubmit={handleSubmit}
-                className="space-y-6"
-            >
+            <form onSubmit={handleSubmit} className="space-y-6">
                 <>
                     <div className="space-y-5">
                         <div className="grid gap-2">
-                            <Label htmlFor="email" className="text-zinc-300 font-medium">Email Address</Label>
+                            <Label
+                                htmlFor="email"
+                                className="font-medium text-zinc-300"
+                            >
+                                Email Address
+                            </Label>
                             <div className="group relative">
                                 <div className="absolute inset-0 rounded-lg bg-primary/20 opacity-0 blur transition-opacity group-focus-within:opacity-100" />
                                 <div className="relative">
@@ -100,12 +101,21 @@ export default function Login({
                                     />
                                 </div>
                             </div>
-                            <InputError message={errors.email} className="text-pink-500/90 text-xs mt-1" />
+                            <InputError
+                                message={errors.email}
+                                className="mt-1 text-xs text-pink-500/90"
+                            />
                         </div>
 
                         <div className="grid gap-2">
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="password" title="Password" className="text-zinc-300 font-medium">Password</Label>
+                                <Label
+                                    htmlFor="password"
+                                    title="Password"
+                                    className="font-medium text-zinc-300"
+                                >
+                                    Password
+                                </Label>
                                 {canResetPassword && (
                                     <TextLink
                                         href={request()}
@@ -134,7 +144,10 @@ export default function Login({
                                     />
                                 </div>
                             </div>
-                            <InputError message={errors.password} className="text-pink-500/90 text-xs mt-1" />
+                            <InputError
+                                message={errors.password}
+                                className="mt-1 text-xs text-pink-500/90"
+                            />
                         </div>
 
                         <div className="flex items-center space-x-2 py-1">
@@ -142,22 +155,32 @@ export default function Login({
                                 id="remember"
                                 name="remember"
                                 checked={formData.remember}
-                                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, remember: !!checked }))}
+                                onCheckedChange={(checked) =>
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        remember: !!checked,
+                                    }))
+                                }
                                 tabIndex={3}
-                                className="border-white/20 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                className="border-white/20 data-[state=checked]:border-primary data-[state=checked]:bg-primary"
                             />
-                            <Label htmlFor="remember" className="text-sm font-medium text-zinc-400 cursor-pointer select-none hover:text-zinc-300 transition-colors">
+                            <Label
+                                htmlFor="remember"
+                                className="cursor-pointer text-sm font-medium text-zinc-400 transition-colors select-none hover:text-zinc-300"
+                            >
                                 Keep me logged in
                             </Label>
                         </div>
 
                         <Button
                             type="submit"
-                            className="h-12 w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold shadow-xl shadow-indigo-500/20 transition-all hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-[0.98] border-none"
+                            className="h-12 w-full border-none bg-gradient-to-r from-indigo-500 to-purple-600 font-bold text-white shadow-xl shadow-indigo-500/20 transition-all hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-[0.98]"
                             tabIndex={4}
                             disabled={processing}
                         >
-                            {processing ? <Spinner className="mr-2 text-white" /> : null}
+                            {processing ? (
+                                <Spinner className="mr-2 text-white" />
+                            ) : null}
                             Sign In
                         </Button>
                     </div>
@@ -165,7 +188,11 @@ export default function Login({
                     {canRegister && (
                         <div className="pt-2 text-center text-sm text-zinc-500">
                             Don't have an account?{' '}
-                            <TextLink href={register()} tabIndex={5} className="font-bold text-white hover:text-primary transition-colors">
+                            <TextLink
+                                href={register()}
+                                tabIndex={5}
+                                className="font-bold text-white transition-colors hover:text-primary"
+                            >
                                 Join for free
                             </TextLink>
                         </div>
@@ -174,7 +201,7 @@ export default function Login({
             </form>
 
             {status && (
-                <div className="mt-6 rounded-lg bg-emerald-500/10 p-3 text-center text-xs font-bold text-emerald-400 border border-emerald-500/20">
+                <div className="mt-6 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-center text-xs font-bold text-emerald-400">
                     {status}
                 </div>
             )}

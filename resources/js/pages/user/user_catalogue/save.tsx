@@ -1,12 +1,12 @@
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import CustomCard from '@/components/ui/custom-card';
 import CustomNotice from '@/components/ui/custom-notice';
 import CustomPageHeading from '@/components/ui/customer-page-heading';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
 import AppLayout from '@/layouts/app-layout';
 import api from '@/lib/api';
 import { dashboard } from '@/routes/index';
@@ -43,7 +43,9 @@ export default function UserCatalogueSave({ id }: UserCatalogueSaveProps) {
     const [loading, setLoading] = useState(isEdit);
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const [permissions, setPermissions] = useState<{id: number, description: string}[]>([]);
+    const [permissions, setPermissions] = useState<
+        { id: number; description: string }[]
+    >([]);
     const [formData, setFormData] = useState({
         name: '',
         canonical: '',
@@ -59,8 +61,15 @@ export default function UserCatalogueSave({ id }: UserCatalogueSaveProps) {
                     if (response.data.status === 'success') {
                         const { name, canonical, description, permissions } =
                             response.data.data;
-                        const permission_ids = permissions ? permissions.map((p: any) => p.id) : [];
-                        setFormData({ name, canonical, description, permission_ids });
+                        const permission_ids = permissions
+                            ? permissions.map((p: any) => p.id)
+                            : [];
+                        setFormData({
+                            name,
+                            canonical,
+                            description,
+                            permission_ids,
+                        });
                     }
                 } catch (error) {
                     toast.error('Không thể tải thông tin bản ghi');
@@ -75,7 +84,9 @@ export default function UserCatalogueSave({ id }: UserCatalogueSaveProps) {
     useEffect(() => {
         const fetchPermissions = async () => {
             try {
-                const response = await api.get('/permission', { params: { perpage: 1000 } });
+                const response = await api.get('/permission', {
+                    params: { perpage: 1000 },
+                });
                 if (response.data.status === 'success') {
                     setPermissions(response.data.data.data || []);
                 }
@@ -117,7 +128,12 @@ export default function UserCatalogueSave({ id }: UserCatalogueSaveProps) {
                 if (redirectAfter) {
                     router.visit('/user_catalogue');
                 } else if (!isEdit) {
-                    setFormData({ name: '', canonical: '', description: '', permission_ids: [] });
+                    setFormData({
+                        name: '',
+                        canonical: '',
+                        description: '',
+                        permission_ids: [],
+                    });
                 }
             }
         } catch (error: any) {
@@ -220,7 +236,7 @@ export default function UserCatalogueSave({ id }: UserCatalogueSaveProps) {
                                                 name="canonical"
                                                 value={formData.canonical}
                                                 onChange={handleChange}
-                                                className="mt-1 text-black block w-full rounded-[5px] border-zinc-200 focus:border-indigo-500 focus:ring-indigo-500"
+                                                className="mt-1 block w-full rounded-[5px] border-zinc-200 text-black focus:border-indigo-500 focus:ring-indigo-500"
                                                 placeholder="Nhập từ khoá (ví dụ: admin)..."
                                             />
                                             <InputError
@@ -249,48 +265,84 @@ export default function UserCatalogueSave({ id }: UserCatalogueSaveProps) {
                                             className="mt-[5px]"
                                         />
                                     </div>
-                                    
+
                                     <div className="mb-[24px]">
-                                        <div className="flex items-center justify-between mb-[10px]">
+                                        <div className="mb-[10px] flex items-center justify-between">
                                             <Label className="text-[13px] font-semibold text-zinc-700">
-                                                Phân quyền ({formData.permission_ids.length} đã chọn)
+                                                Phân quyền (
+                                                {formData.permission_ids.length}{' '}
+                                                đã chọn)
                                             </Label>
                                             <div className="flex space-x-2">
                                                 <button
                                                     type="button"
-                                                    onClick={() => setFormData(prev => ({ ...prev, permission_ids: permissions.map(p => p.id) }))}
-                                                    className="text-[13px] font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
+                                                    onClick={() =>
+                                                        setFormData((prev) => ({
+                                                            ...prev,
+                                                            permission_ids:
+                                                                permissions.map(
+                                                                    (p) => p.id,
+                                                                ),
+                                                        }))
+                                                    }
+                                                    className="text-[13px] font-medium text-indigo-600 transition-colors hover:text-indigo-800"
                                                 >
                                                     Chọn tất cả
                                                 </button>
-                                                <span className="text-zinc-300">|</span>
+                                                <span className="text-zinc-300">
+                                                    |
+                                                </span>
                                                 <button
                                                     type="button"
-                                                    onClick={() => setFormData(prev => ({ ...prev, permission_ids: [] }))}
-                                                    className="text-[13px] font-medium text-rose-600 hover:text-rose-800 transition-colors"
+                                                    onClick={() =>
+                                                        setFormData((prev) => ({
+                                                            ...prev,
+                                                            permission_ids: [],
+                                                        }))
+                                                    }
+                                                    className="text-[13px] font-medium text-rose-600 transition-colors hover:text-rose-800"
                                                 >
                                                     Bỏ chọn tất cả
                                                 </button>
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
+                                        <div className="mt-2 grid grid-cols-2 gap-4 md:grid-cols-3">
                                             {permissions.map((permission) => (
-                                                <div key={permission.id} className="flex items-center space-x-2">
+                                                <div
+                                                    key={permission.id}
+                                                    className="flex items-center space-x-2"
+                                                >
                                                     <Checkbox
                                                         id={`permission-${permission.id}`}
-                                                        checked={formData.permission_ids.includes(permission.id)}
-                                                        onCheckedChange={(checked) => {
-                                                            setFormData(prev => ({
-                                                                ...prev,
-                                                                permission_ids: checked 
-                                                                    ? [...prev.permission_ids, permission.id]
-                                                                    : prev.permission_ids.filter(id => id !== permission.id)
-                                                            }));
+                                                        checked={formData.permission_ids.includes(
+                                                            permission.id,
+                                                        )}
+                                                        onCheckedChange={(
+                                                            checked,
+                                                        ) => {
+                                                            setFormData(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    permission_ids:
+                                                                        checked
+                                                                            ? [
+                                                                                  ...prev.permission_ids,
+                                                                                  permission.id,
+                                                                              ]
+                                                                            : prev.permission_ids.filter(
+                                                                                  (
+                                                                                      id,
+                                                                                  ) =>
+                                                                                      id !==
+                                                                                      permission.id,
+                                                                              ),
+                                                                }),
+                                                            );
                                                         }}
                                                     />
                                                     <Label
                                                         htmlFor={`permission-${permission.id}`}
-                                                        className="text-[13px] text-black font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                        className="text-[13px] leading-none font-medium text-black peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                                     >
                                                         {permission.description}
                                                     </Label>

@@ -1,8 +1,8 @@
+import api from '@/lib/api';
 import { login } from '@/routes';
 import { Head, router } from '@inertiajs/react';
-import { Lock, Mail, User, Loader2 } from 'lucide-react';
+import { Lock, Mail, User } from 'lucide-react';
 import { useState } from 'react';
-import api from '@/lib/api';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -24,7 +24,7 @@ export default function Register() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -35,7 +35,7 @@ export default function Register() {
         try {
             // Post to Fortify register route
             await api.post('/register', formData, { baseURL: '' });
-            
+
             // If success, redirect to dashboard
             router.visit('/dashboard');
         } catch (error: any) {
@@ -58,10 +58,7 @@ export default function Register() {
             description="Enter your details below to get started"
         >
             <Head title="Register" />
-            <form
-                onSubmit={handleSubmit}
-                className="space-y-6"
-            >
+            <form onSubmit={handleSubmit} className="space-y-6">
                 <>
                     <div className="space-y-4">
                         <div className="grid gap-2">
@@ -82,9 +79,7 @@ export default function Register() {
                                     className="pl-10"
                                 />
                             </div>
-                            <InputError
-                                message={errors.name}
-                            />
+                            <InputError message={errors.name} />
                         </div>
 
                         <div className="grid gap-2">
@@ -153,7 +148,7 @@ export default function Register() {
 
                         <Button
                             type="submit"
-                            className="w-full mt-2 shadow-md shadow-primary/20"
+                            className="mt-2 w-full shadow-md shadow-primary/20"
                             tabIndex={5}
                             disabled={processing}
                         >
@@ -164,7 +159,11 @@ export default function Register() {
 
                     <div className="text-center text-sm text-muted-foreground">
                         Already have an account?{' '}
-                        <TextLink href={login()} tabIndex={6} className="font-semibold">
+                        <TextLink
+                            href={login()}
+                            tabIndex={6}
+                            className="font-semibold"
+                        >
                             Log in
                         </TextLink>
                     </div>

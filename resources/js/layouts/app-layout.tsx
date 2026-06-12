@@ -1,10 +1,9 @@
 import { Toaster } from '@/components/ui/sonner';
 import AppLayoutTemplate from '@/layouts/app/app-sidebar-layout';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { useEffect, type ReactNode } from 'react';
 import { toast } from 'sonner';
-import { type SharedData } from '@/types';
 
 interface AppLayoutProps {
     children: ReactNode;
@@ -12,8 +11,7 @@ interface AppLayoutProps {
 }
 
 export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => {
-
-    const { flash  } = usePage<SharedData>().props;
+    const { flash } = usePage<SharedData>().props;
     useEffect(() => {
         if (flash?.success) {
             toast.success('Thông báo từ hệ thống', {
@@ -22,7 +20,7 @@ export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => {
         }
 
         if (flash?.error) {
-           toast.error('Thông báo từ hệ thống', {
+            toast.error('Thông báo từ hệ thống', {
                 description: flash.error,
             });
         }
@@ -36,14 +34,14 @@ export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => {
         if (flash?.warming) {
             toast.warning(' thông báo từ hệ thống', {
                 description: flash.warming,
-            })
-        } 
+            });
+        }
     }, [flash]);
 
     return (
         <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
             {children}
-             <Toaster richColors position="top-right" />
+            <Toaster richColors position="top-right" />
         </AppLayoutTemplate>
     );
 };

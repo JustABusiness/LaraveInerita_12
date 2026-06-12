@@ -31,11 +31,17 @@ const CustomCard = ({
     className,
 }: CustomCardProps) => {
     return (
-        <Card className={`relative overflow-hidden rounded-[5px] pt-[20px] ${className}`}>
+        <Card
+            className={`relative overflow-hidden rounded-[5px] pt-[20px] ${className}`}
+        >
             {isShowHeader && (
-                <CardHeader className="border-b border-zinc-100 mb-6">
-                    <CardTitle className="uppercase text-zinc-900 font-bold tracking-tight">{title}</CardTitle>
-                    <CardDescription className="text-zinc-500 font-medium">{description}</CardDescription>
+                <CardHeader className="mb-6 border-b border-zinc-100">
+                    <CardTitle className="font-bold tracking-tight text-zinc-900 uppercase">
+                        {title}
+                    </CardTitle>
+                    <CardDescription className="font-medium text-zinc-500">
+                        {description}
+                    </CardDescription>
                 </CardHeader>
             )}
             <CardContent className={`${height ?? 'h-[48]'}`}>

@@ -1,6 +1,5 @@
 import { InertiaLinkProps } from '@inertiajs/react';
 import { LucideIcon } from 'lucide-react';
-import z from 'zod';
 
 export interface Auth {
     user: User;
@@ -21,7 +20,7 @@ export interface NavItem {
     href: NonNullable<InertiaLinkProps['href']>;
     icon?: LucideIcon | null;
     isActive?: boolean;
-    items?: NavSubItem [];
+    items?: NavSubItem[];
 }
 
 export interface NavSubItem {
@@ -40,7 +39,7 @@ export interface SharedData {
         error?: string;
         info?: string;
         warming?: string;
-    }
+    };
 }
 
 export interface User extends IDateTime {
@@ -58,10 +57,9 @@ export interface IDateTime {
     updated_at: string;
 }
 
-export interface PageConfig  {
+export interface PageConfig {
     module: string;
     heading: string;
     cardHeading?: string;
     cardDescription?: string;
-
 }

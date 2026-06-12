@@ -8,7 +8,6 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
-import { resolveUrl } from '@/lib/utils';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { ArrowRight } from 'lucide-react';
@@ -31,7 +30,10 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                 <CollapsibleTrigger asChild>
                                     <SidebarMenuButton
                                         isActive={page.url.startsWith(
-                                            typeof item.href === 'string' ? item.href : item.href.url)}
+                                            typeof item.href === 'string'
+                                                ? item.href
+                                                : item.href.url,
+                                        )}
                                         tooltip={{ children: item.title }}
                                     >
                                         {item.icon && <item.icon />}

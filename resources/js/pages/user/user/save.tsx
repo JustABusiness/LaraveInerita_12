@@ -88,7 +88,9 @@ export default function UserSave({ id }: UserSaveProps) {
         fetchData();
     }, [id, isEdit]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    ) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
         if (errors[name]) {
@@ -448,7 +450,7 @@ export default function UserSave({ id }: UserSaveProps) {
                                             name="description"
                                             value={formData.description}
                                             onChange={handleChange}
-                                            className="mt-1 text-zinc-600 block w-full rounded-[5px] border-zinc-200 text-black focus:border-indigo-500 focus:ring-indigo-500"
+                                            className="mt-1 block w-full rounded-[5px] border-zinc-200 text-black text-zinc-600 focus:border-indigo-500 focus:ring-indigo-500"
                                             placeholder="Nhập ghi chú thêm..."
                                             rows={4}
                                         />

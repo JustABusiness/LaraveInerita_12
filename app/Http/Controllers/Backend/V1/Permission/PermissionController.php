@@ -22,7 +22,7 @@ class PermissionController extends BaseController
         $this->service = $service;
     }
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): JsonResponse 
     {
         // $this->authorize('modules', 'permission.index');
         $data = $this->service->paginate($request); 

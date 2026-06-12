@@ -4,7 +4,7 @@ const api = axios.create({
     baseURL: '/api/v1',
     headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
     },
     withCredentials: true, // For session-based auth (Sanctum)
 });
@@ -17,7 +17,7 @@ api.interceptors.response.use(
             // Handle unauthorized (e.g., redirect to login)
         }
         return Promise.reject(error);
-    }
+    },
 );
 
 export default api;

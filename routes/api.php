@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Backend\V1\User\UserCatalogueController;
 
-use App\Http\Controllers\Backend\V1\Permission\PermissionController;
 
 Route::prefix('v1')->group(function () {
     Route::post('user_catalogue/bulk-destroy', [UserCatalogueController::class, 'bulkDestroy']);
