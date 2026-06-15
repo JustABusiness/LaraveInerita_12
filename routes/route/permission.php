@@ -13,6 +13,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('permission.create');
 
     Route::get('/permission/{id}/edit', function ($id) {
-        return Inertia::render('permission/save', ['id' => $id]);
+        return Inertia::render('permission/save', ['id' => $id] );
     })->name('permission.edit');
 });

@@ -1,4 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
+import ReadingCat from '@/components/reading-cat';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
@@ -166,7 +167,6 @@ const statsMock: Record<'today' | 'week' | 'month', StatData[]> = {
     ],
 };
 
-// SVG Area Chart points and labels
 const chartDataMock = {
     today: {
         labels: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'],
@@ -388,13 +388,11 @@ export default function Dashboard() {
         null,
     );
 
-    // Real-time Clock State
     const [currentTime, setCurrentTime] = useState(new Date());
     const [simulationMode, setSimulationMode] = useState<
         'realtime' | 'morning_peak' | 'afternoon_peak' | 'evening_peak'
     >('realtime');
 
-    // Update time every second
     React.useEffect(() => {
         const timer = setInterval(() => {
             setCurrentTime(new Date());
@@ -402,7 +400,6 @@ export default function Dashboard() {
         return () => clearInterval(timer);
     }, []);
 
-    // Get time based on simulation mode
     const getActiveTime = () => {
         if (simulationMode === 'morning_peak') {
             const d = new Date();
@@ -427,7 +424,6 @@ export default function Dashboard() {
     const currentMinute = activeTime.getMinutes();
     const currentTotalMinutes = currentHour * 60 + currentMinute;
 
-    // Dynamically calculate class status and time indicators
     const dynamicTimetable = timetableMock.map((item) => {
         const [startH, startM] = item.startTime.split(':').map(Number);
         const [endH, endM] = item.endTime.split(':').map(Number);
@@ -476,7 +472,6 @@ export default function Dashboard() {
         };
     });
 
-    // Dynamic Teacher status mapping based on ongoing classes
     const updatedTeachers = teachersMock.map((teacher) => {
         const hasOngoingClass = dynamicTimetable.some(
             (cls) => cls.teacher === teacher.name && cls.status === 'ongoing',
@@ -487,7 +482,6 @@ export default function Dashboard() {
         };
     });
 
-    // Calculate SVG coordinate points for the custom chart
     const activeChartData = chartDataMock[timeRange];
     const chartHeight = 160;
     const chartWidth = 500;
@@ -499,19 +493,16 @@ export default function Dashboard() {
     const graphWidth = chartWidth - paddingLeft - paddingRight;
     const graphHeight = chartHeight - paddingTop - paddingBottom;
 
-    // Calculate X coordinates
     const pointsCount = activeChartData.values.length;
     const getX = (index: number) => {
         return paddingLeft + (index / (pointsCount - 1)) * graphWidth;
     };
 
-    // Calculate Y coordinates
     const maxVal = activeChartData.maxVal;
     const getY = (val: number) => {
         return paddingTop + graphHeight - (val / maxVal) * graphHeight;
     };
 
-    // Generate path definition for SVG Line
     let linePathD = '';
     let areaPathD = '';
     if (pointsCount > 0) {
@@ -524,7 +515,6 @@ export default function Dashboard() {
         areaPathD += ` L ${getX(pointsCount - 1)} ${paddingTop + graphHeight} L ${getX(0)} ${paddingTop + graphHeight} Z`;
     }
 
-    // Filter timetable based on period and search query
     const filteredTimetable = dynamicTimetable.filter((item) => {
         const matchesPeriod =
             timetableFilter === 'all' || item.period === timetableFilter;
@@ -543,49 +533,60 @@ export default function Dashboard() {
 
             <div className="flex flex-1 flex-col gap-6 p-6">
                 {/* Header Welcome & Quick Info */}
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
-                            Tổng Quan Trung Tâm IELTS
-                        </h1>
-                        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                            Theo dõi thống kê học tập, sĩ số học viên, tình hình
-                            giảng dạy và lịch học thời gian thực.
-                        </p>
+                <div className="relative flex flex-col gap-6 overflow-hidden rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm group lg:flex-row lg:items-center dark:border-neutral-800 dark:bg-neutral-900">
+                    
+                    {/* Left & Middle: Welcome Text and Reading Cat on the SAME ROW */}
+                    <div className="relative z-10 flex flex-1 items-center gap-8">
+                        <div className="flex-1">
+                            <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white flex items-center gap-2">
+                                Hệ Thống Quản Lý IELTS
+                                <span className="animate-bounce">📖</span>
+                            </h1>
+                            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400 max-w-md">
+                                Chào mừng bạn trở lại! Hãy cùng chú mèo học tập chăm chỉ hôm nay nhé. Theo dõi thống kê và lịch học của trung tâm.
+                            </p>
+                        </div>
+                        
+                        {/* Reading Cat centered next to text */}
+                        <div className="transform transition-transform duration-500 group-hover:scale-110 shrink-0">
+                            <ReadingCat />
+                        </div>
                     </div>
 
-                    {/* Time Filter controls */}
-                    <div className="flex items-center gap-1 rounded-lg border border-neutral-200 bg-white p-1 dark:border-neutral-800 dark:bg-neutral-900">
-                        <button
-                            onClick={() => setTimeRange('today')}
-                            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
-                                timeRange === 'today'
-                                    ? 'bg-indigo-600 text-white shadow'
-                                    : 'text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
-                            }`}
-                        >
-                            Hôm nay
-                        </button>
-                        <button
-                            onClick={() => setTimeRange('week')}
-                            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
-                                timeRange === 'week'
-                                    ? 'bg-indigo-600 text-white shadow'
-                                    : 'text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
-                            }`}
-                        >
-                            Tuần này
-                        </button>
-                        <button
-                            onClick={() => setTimeRange('month')}
-                            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
-                                timeRange === 'month'
-                                    ? 'bg-indigo-600 text-white shadow'
-                                    : 'text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
-                            }`}
-                        >
-                            Tháng này
-                        </button>
+                    {/* Right: Time Filter controls */}
+                    <div className="relative z-10 flex items-center justify-center lg:justify-end gap-1 shrink-0">
+                        <div className="flex items-center gap-1 rounded-lg border border-neutral-200 bg-white/80 backdrop-blur-sm p-1 dark:border-neutral-800 dark:bg-neutral-900/80">
+                            <button
+                                onClick={() => setTimeRange('today')}
+                                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
+                                    timeRange === 'today'
+                                        ? 'bg-indigo-600 text-white shadow'
+                                        : 'text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
+                                }`}
+                            >
+                                Hôm nay
+                            </button>
+                            <button
+                                onClick={() => setTimeRange('week')}
+                                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
+                                    timeRange === 'week'
+                                        ? 'bg-indigo-600 text-white shadow'
+                                        : 'text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
+                                }`}
+                            >
+                                Tuần này
+                            </button>
+                            <button
+                                onClick={() => setTimeRange('month')}
+                                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
+                                    timeRange === 'month'
+                                        ? 'bg-indigo-600 text-white shadow'
+                                        : 'text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
+                                }`}
+                            >
+                                Tháng này
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -598,7 +599,6 @@ export default function Dashboard() {
                                 key={idx}
                                 className="group relative overflow-hidden rounded-xl border border-neutral-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900"
                             >
-                                {/* Decorative Gradient Overlay */}
                                 <div
                                     className={`absolute -top-4 -right-4 size-24 rounded-full bg-gradient-to-br ${stat.gradient} opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100`}
                                 />
@@ -631,16 +631,13 @@ export default function Dashboard() {
                                     {stat.description}
                                 </p>
 
-                                {/* Bottom Accent Border */}
                                 <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                             </div>
                         );
                     })}
                 </div>
 
-                {/* Main Graph & Target Bands Analysis */}
                 <div className="grid gap-6 lg:grid-cols-3">
-                    {/* SVG Analytics Registration Chart */}
                     <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm lg:col-span-2 dark:border-neutral-800 dark:bg-neutral-900">
                         <div className="flex items-center justify-between border-b border-neutral-100 pb-4 dark:border-neutral-800">
                             <div>
@@ -649,8 +646,7 @@ export default function Dashboard() {
                                     Tần Suất Học Viên Đăng Ký
                                 </h2>
                                 <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-                                    Số liệu đăng ký ghi danh mới theo thời gian
-                                    đã chọn
+                                    Số liệu đăng ký ghi danh mới theo thời gian đã chọn
                                 </p>
                             </div>
                             <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
@@ -659,56 +655,25 @@ export default function Dashboard() {
                             </span>
                         </div>
 
-                        {/* Interactive Responsive SVG Area Graph */}
                         <div className="relative mt-6 flex justify-center">
                             <svg
                                 viewBox={`0 0 ${chartWidth} ${chartHeight}`}
                                 className="h-auto w-full overflow-visible select-none"
                             >
                                 <defs>
-                                    <linearGradient
-                                        id="area-grad"
-                                        x1="0"
-                                        y1="0"
-                                        x2="0"
-                                        y2="1"
-                                    >
-                                        <stop
-                                            offset="0%"
-                                            stopColor="#4f46e5"
-                                            stopOpacity="0.25"
-                                        />
-                                        <stop
-                                            offset="100%"
-                                            stopColor="#4f46e5"
-                                            stopOpacity="0.0"
-                                        />
+                                    <linearGradient id="area-grad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.25" />
+                                        <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.0" />
                                     </linearGradient>
-                                    <linearGradient
-                                        id="line-grad"
-                                        x1="0"
-                                        y1="0"
-                                        x2="1"
-                                        y2="0"
-                                    >
+                                    <linearGradient id="line-grad" x1="0" y1="0" x2="1" y2="0">
                                         <stop offset="0%" stopColor="#6366f1" />
-                                        <stop
-                                            offset="50%"
-                                            stopColor="#a855f7"
-                                        />
-                                        <stop
-                                            offset="100%"
-                                            stopColor="#ec4899"
-                                        />
+                                        <stop offset="50%" stopColor="#a855f7" />
+                                        <stop offset="100%" stopColor="#ec4899" />
                                     </linearGradient>
                                 </defs>
 
-                                {/* Y-axis gridlines & labels */}
                                 {[0, 0.5, 1].map((ratio, i) => {
-                                    const y =
-                                        paddingTop +
-                                        graphHeight -
-                                        ratio * graphHeight;
+                                    const y = paddingTop + graphHeight - ratio * graphHeight;
                                     const val = Math.round(ratio * maxVal);
                                     return (
                                         <g key={i} className="opacity-40">
@@ -735,10 +700,7 @@ export default function Dashboard() {
                                     );
                                 })}
 
-                                {/* Chart Area Fill */}
                                 <path d={areaPathD} fill="url(#area-grad)" />
-
-                                {/* Chart Line Path */}
                                 <path
                                     d={linePathD}
                                     stroke="url(#line-grad)"
@@ -748,7 +710,6 @@ export default function Dashboard() {
                                     fill="none"
                                 />
 
-                                {/* X-axis labels and points */}
                                 {activeChartData.values.map((val, idx) => {
                                     const x = getX(idx);
                                     const y = getY(val);
@@ -757,14 +718,9 @@ export default function Dashboard() {
 
                                     return (
                                         <g key={idx} className="cursor-pointer">
-                                            {/* X-axis Label */}
                                             <text
                                                 x={x}
-                                                y={
-                                                    paddingTop +
-                                                    graphHeight +
-                                                    18
-                                                }
+                                                y={paddingTop + graphHeight + 18}
                                                 textAnchor="middle"
                                                 fontSize="10.5"
                                                 className="fill-neutral-500 font-semibold dark:fill-neutral-400"
@@ -772,15 +728,12 @@ export default function Dashboard() {
                                                 {label}
                                             </text>
 
-                                            {/* Vertical hover guide line */}
                                             {isHovered && (
                                                 <line
                                                     x1={x}
                                                     y1={paddingTop}
                                                     x2={x}
-                                                    y2={
-                                                        paddingTop + graphHeight
-                                                    }
+                                                    y2={paddingTop + graphHeight}
                                                     stroke="#6366f1"
                                                     strokeWidth="1.5"
                                                     strokeDasharray="2 2"
@@ -788,26 +741,20 @@ export default function Dashboard() {
                                                 />
                                             )}
 
-                                            {/* Interactive Dots */}
                                             <circle
                                                 cx={x}
                                                 cy={y}
                                                 r={isHovered ? 7 : 4.5}
                                                 className={`fill-white stroke-indigo-600 transition-all duration-200 dark:stroke-indigo-400`}
                                                 strokeWidth={isHovered ? 3 : 2}
-                                                onMouseEnter={() =>
-                                                    setHoveredChartIndex(idx)
-                                                }
-                                                onMouseLeave={() =>
-                                                    setHoveredChartIndex(null)
-                                                }
+                                                onMouseEnter={() => setHoveredChartIndex(idx)}
+                                                onMouseLeave={() => setHoveredChartIndex(null)}
                                             />
                                         </g>
                                     );
                                 })}
                             </svg>
 
-                            {/* Floating Custom Tooltip when Hovering Points */}
                             {hoveredChartIndex !== null && (
                                 <div
                                     className="absolute rounded-lg border border-neutral-100 bg-neutral-950 px-3 py-1.5 shadow-xl transition-all dark:border-neutral-800"
@@ -819,19 +766,10 @@ export default function Dashboard() {
                                 >
                                     <div className="text-center">
                                         <p className="text-[10px] font-bold tracking-wider text-neutral-400 uppercase">
-                                            {
-                                                activeChartData.labels[
-                                                    hoveredChartIndex
-                                                ]
-                                            }
+                                            {activeChartData.labels[hoveredChartIndex]}
                                         </p>
                                         <p className="text-xs font-extrabold text-white">
-                                            {
-                                                activeChartData.values[
-                                                    hoveredChartIndex
-                                                ]
-                                            }{' '}
-                                            đăng ký
+                                            {activeChartData.values[hoveredChartIndex]} đăng ký
                                         </p>
                                     </div>
                                 </div>
@@ -839,7 +777,6 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    {/* IELTS Target Bands Breakdown */}
                     <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                         <div className="border-b border-neutral-100 pb-4 dark:border-neutral-800">
                             <h2 className="flex items-center gap-2 text-base font-bold text-neutral-900 dark:text-white">
@@ -847,12 +784,10 @@ export default function Dashboard() {
                                 Cơ Cấu Band Mục Tiêu
                             </h2>
                             <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-                                Phân bổ học viên theo chỉ tiêu IELTS đầu ra mong
-                                muốn
+                                Phân bổ học viên theo chỉ tiêu IELTS đầu ra mong muốn
                             </p>
                         </div>
 
-                        {/* List & Progress Bars */}
                         <div className="mt-6 space-y-5">
                             {bandDistribution.map((item, index) => (
                                 <div key={index} className="space-y-2">
@@ -870,38 +805,30 @@ export default function Dashboard() {
                                         </div>
                                     </div>
 
-                                    {/* Progress track */}
                                     <div className="h-2.5 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
                                         <div
                                             className={`h-full rounded-full ${item.color} transition-all duration-1000 ease-out`}
-                                            style={{
-                                                width: `${item.percentage}%`,
-                                            }}
+                                            style={{ width: `${item.percentage}%` }}
                                         />
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        {/* Summary Info Tip */}
                         <div className="mt-6 flex gap-3 rounded-lg border border-indigo-100/50 bg-indigo-50/50 p-4 dark:border-indigo-900/30 dark:bg-indigo-950/20">
                             <Info className="size-5 shrink-0 text-indigo-600 dark:text-indigo-400" />
                             <div className="text-xs leading-relaxed text-indigo-900/80 dark:text-indigo-300/90">
                                 <strong className="block font-bold text-indigo-950 dark:text-white">
                                     Mục tiêu 6.5 - 7.0 dẫn đầu
                                 </strong>
-                                Đa phần học viên tập trung thi lấy chứng chỉ xét
-                                tuyển đại học và du học. Tỷ lệ hoàn thành mục
-                                tiêu band cam kết quý trước đạt{' '}
+                                Đa phần học viên tập trung thi lấy chứng chỉ xét tuyển đại học và du học. Tỷ lệ hoàn thành mục tiêu band cam kết quý trước đạt{' '}
                                 <span className="font-bold">92.4%</span>.
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Timetable, Schedule & Teachers list */}
                 <div className="grid gap-6 lg:grid-cols-3">
-                    {/* Today's Timetable Section */}
                     <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm lg:col-span-2 dark:border-neutral-800 dark:bg-neutral-900">
                         <div className="flex flex-col gap-4 border-b border-neutral-100 pb-4 lg:flex-row lg:items-center lg:justify-between dark:border-neutral-800">
                             <div>
@@ -910,25 +837,15 @@ export default function Dashboard() {
                                     Thời Khóa Biểu Hôm Nay
                                 </h2>
                                 <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-                                    Lịch lên lớp, phòng học và giảng viên IELTS
-                                    trực ca
+                                    Lịch lên lớp, phòng học và giảng viên IELTS trực ca
                                 </p>
-                                {/* Active clock representation */}
                                 <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
                                     <span className="relative flex size-2">
                                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
                                         <span className="relative inline-flex size-2 rounded-full bg-indigo-500"></span>
                                     </span>
                                     <span>
-                                        Giờ hiện tại:{' '}
-                                        {activeTime.toLocaleTimeString(
-                                            'vi-VN',
-                                            {
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                                second: '2-digit',
-                                            },
-                                        )}
+                                        Giờ hiện tại: {activeTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                                     </span>
                                     {simulationMode !== 'realtime' && (
                                         <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800 dark:bg-amber-950/40 dark:text-amber-400">
@@ -938,68 +855,41 @@ export default function Dashboard() {
                                 </div>
                             </div>
 
-                            {/* Simulation & Search Controls */}
                             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                                {/* Simulation Selector */}
                                 <select
                                     value={simulationMode}
-                                    onChange={(e) =>
-                                        setSimulationMode(e.target.value as any)
-                                    }
+                                    onChange={(e) => setSimulationMode(e.target.value as any)}
                                     className="rounded-lg border border-neutral-200 bg-white px-2 py-1.5 text-xs font-semibold text-neutral-700 focus:border-indigo-500 focus:outline-none dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-300"
                                 >
-                                    <option value="realtime">
-                                        ⏱️ Giờ hệ thống thực
-                                    </option>
-                                    <option value="morning_peak">
-                                        🌅 Ca Sáng (09:30)
-                                    </option>
-                                    <option value="afternoon_peak">
-                                        ☀️ Ca Chiều (14:30)
-                                    </option>
-                                    <option value="evening_peak">
-                                        🌙 Ca Tối (19:30)
-                                    </option>
+                                    <option value="realtime">⏱️ Giờ hệ thống thực</option>
+                                    <option value="morning_peak">🌅 Ca Sáng (09:30)</option>
+                                    <option value="afternoon_peak">☀️ Ca Chiều (14:30)</option>
+                                    <option value="evening_peak">🌙 Ca Tối (19:30)</option>
                                 </select>
 
-                                {/* Search bar */}
                                 <div className="relative w-full max-w-[200px]">
                                     <Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-neutral-400" />
                                     <input
                                         type="text"
                                         placeholder="Tìm lớp, giáo viên..."
                                         value={searchQuery}
-                                        onChange={(e) =>
-                                            setSearchQuery(e.target.value)
-                                        }
+                                        onChange={(e) => setSearchQuery(e.target.value)}
                                         className="w-full rounded-lg border border-neutral-200 bg-white py-1.5 pr-3 pl-8 text-xs placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:border-neutral-800 dark:bg-neutral-950 dark:text-white"
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Filter buttons */}
                         <div className="mt-4 flex flex-wrap gap-2">
                             {[
                                 { key: 'all', label: 'Tất cả ca' },
-                                {
-                                    key: 'morning',
-                                    label: 'Ca Sáng (08:00-12:00)',
-                                },
-                                {
-                                    key: 'afternoon',
-                                    label: 'Ca Chiều (13:00-18:00)',
-                                },
-                                {
-                                    key: 'evening',
-                                    label: 'Ca Tối (18:00-22:15)',
-                                },
+                                { key: 'morning', label: 'Ca Sáng (08:00-12:00)' },
+                                { key: 'afternoon', label: 'Ca Chiều (13:00-18:00)' },
+                                { key: 'evening', label: 'Ca Tối (18:00-22:15)' },
                             ].map((tab) => (
                                 <button
                                     key={tab.key}
-                                    onClick={() =>
-                                        setTimetableFilter(tab.key as any)
-                                    }
+                                    onClick={() => setTimetableFilter(tab.key as any)}
                                     className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${
                                         timetableFilter === tab.key
                                             ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950'
@@ -1011,7 +901,6 @@ export default function Dashboard() {
                             ))}
                         </div>
 
-                        {/* Timetable List */}
                         <div className="mt-6 space-y-4">
                             {filteredTimetable.length > 0 ? (
                                 filteredTimetable.map((item) => (
@@ -1025,126 +914,60 @@ export default function Dashboard() {
                                     >
                                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                             <div className="space-y-1">
-                                                <div className="flex items-center gap-2">
-                                                    <h3 className="text-sm font-bold text-neutral-900 transition-colors group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
-                                                        {item.className}
-                                                    </h3>
-                                                </div>
+                                                <h3 className="text-sm font-bold text-neutral-900 transition-colors group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
+                                                    {item.className}
+                                                </h3>
                                                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-neutral-500 dark:text-neutral-400">
-                                                    <span className="font-semibold text-neutral-800 dark:text-neutral-200">
-                                                        GV: {item.teacher}
-                                                    </span>
+                                                    <span className="font-semibold text-neutral-800 dark:text-neutral-200">GV: {item.teacher}</span>
                                                     <span className="size-1 rounded-full bg-neutral-300 dark:bg-neutral-600" />
-                                                    <span className="inline-flex items-center gap-1 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-600 dark:bg-amber-950/20 dark:text-amber-400">
-                                                        {item.credentials}
-                                                    </span>
+                                                    <span className="inline-flex items-center gap-1 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-600 dark:bg-amber-950/20 dark:text-amber-400">{item.credentials}</span>
                                                     <span className="size-1 rounded-full bg-neutral-300 dark:bg-neutral-600" />
-                                                    <span className="font-medium">
-                                                        {item.room}
-                                                    </span>
+                                                    <span className="font-medium">{item.room}</span>
                                                 </div>
                                             </div>
 
-                                            {/* Status Badge */}
                                             <span
                                                 className={`flex items-center gap-1.5 self-start rounded-full px-2.5 py-0.5 text-xs font-bold sm:self-center ${
                                                     item.status === 'completed'
                                                         ? 'text-neutral-650 bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-400'
-                                                        : item.status ===
-                                                            'ongoing'
+                                                        : item.status === 'ongoing'
                                                           ? 'dark:text-emerald-450 animate-pulse bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40'
                                                           : 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/20 dark:text-indigo-400'
                                                 }`}
                                             >
-                                                {item.status === 'ongoing' && (
-                                                    <span className="size-1.5 rounded-full bg-emerald-500" />
-                                                )}
+                                                {item.status === 'ongoing' && <span className="size-1.5 rounded-full bg-emerald-500" />}
                                                 {item.statusText}
                                             </span>
                                         </div>
 
-                                        {/* Class Capacity / Student Count */}
                                         <div className="space-y-1">
                                             <div className="flex justify-between text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
-                                                <span>
-                                                    Sĩ số lớp:{' '}
-                                                    <strong className="font-bold text-neutral-800 dark:text-neutral-200">
-                                                        {item.studentsCount}/
-                                                        {item.maxStudents}
-                                                    </strong>
-                                                </span>
-                                                {item.studentsCount ===
-                                                item.maxStudents ? (
-                                                    <span className="font-bold text-rose-600 dark:text-rose-400">
-                                                        Lớp đã đầy
-                                                    </span>
+                                                <span>Sĩ số lớp: <strong className="font-bold text-neutral-800 dark:text-neutral-200">{item.studentsCount}/{item.maxStudents}</strong></span>
+                                                {item.studentsCount === item.maxStudents ? (
+                                                    <span className="font-bold text-rose-600 dark:text-rose-400">Lớp đã đầy</span>
                                                 ) : (
-                                                    <span>
-                                                        Trống{' '}
-                                                        {item.maxStudents -
-                                                            item.studentsCount}{' '}
-                                                        chỗ
-                                                    </span>
+                                                    <span>Trống {item.maxStudents - item.studentsCount} chỗ</span>
                                                 )}
                                             </div>
                                             <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
                                                 <div
                                                     className={`h-full rounded-full transition-all duration-500 ${
-                                                        item.studentsCount ===
-                                                        item.maxStudents
-                                                            ? 'bg-rose-500'
-                                                            : item.studentsCount >
-                                                                item.maxStudents *
-                                                                    0.8
-                                                              ? 'bg-amber-500'
-                                                              : 'bg-emerald-500'
+                                                        item.studentsCount === item.maxStudents ? 'bg-rose-500' : item.studentsCount > item.maxStudents * 0.8 ? 'bg-amber-500' : 'bg-emerald-500'
                                                     }`}
-                                                    style={{
-                                                        width: `${(item.studentsCount / item.maxStudents) * 100}%`,
-                                                    }}
+                                                    style={{ width: `${(item.studentsCount / item.maxStudents) * 100}%` }}
                                                 />
                                             </div>
                                         </div>
 
-                                        {/* Ongoing Progress Bar */}
                                         {item.status === 'ongoing' && (
                                             <div className="space-y-1 border-t border-neutral-100 pt-3 dark:border-neutral-800/60">
                                                 <div className="text-indigo-650 flex justify-between text-[10px] font-bold dark:text-indigo-400">
-                                                    <span>
-                                                        Đã học được{' '}
-                                                        {item.progress}% thời
-                                                        gian ca
-                                                    </span>
+                                                    <span>Đã học được {item.progress}% thời gian ca</span>
                                                     <span>{item.timeInfo}</span>
                                                 </div>
                                                 <div className="h-1 w-full overflow-hidden rounded-full bg-indigo-100 dark:bg-indigo-950">
-                                                    <div
-                                                        className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"
-                                                        style={{
-                                                            width: `${item.progress}%`,
-                                                        }}
-                                                    />
+                                                    <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600" style={{ width: `${item.progress}%` }} />
                                                 </div>
-                                            </div>
-                                        )}
-
-                                        {/* Bottom info bar for non-ongoing classes */}
-                                        {item.status !== 'ongoing' && (
-                                            <div className="flex items-center justify-between border-t border-neutral-100 pt-3 dark:border-neutral-800/80">
-                                                <span className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-                                                    <Clock className="text-neutral-450 size-3.5" />
-                                                    Ca học:{' '}
-                                                    <span className="font-semibold text-neutral-800 dark:text-neutral-200">
-                                                        {item.startTime} -{' '}
-                                                        {item.endTime}
-                                                    </span>
-                                                </span>
-                                                <span className="text-neutral-450 dark:text-neutral-550 text-xs font-medium">
-                                                    {item.timeInfo}
-                                                </span>
-                                                <span className="rounded bg-neutral-50 px-2 py-0.5 text-[10px] font-bold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
-                                                    {item.skill}
-                                                </span>
                                             </div>
                                         )}
                                     </div>
@@ -1152,100 +975,38 @@ export default function Dashboard() {
                             ) : (
                                 <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-neutral-200 py-10 dark:border-neutral-800">
                                     <Calendar className="mb-2 size-8 text-neutral-300 dark:text-neutral-700" />
-                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                        Không tìm thấy lịch học nào khớp với bộ
-                                        lọc
-                                    </p>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Không tìm thấy lịch học nào khớp với bộ lọc</p>
                                 </div>
                             )}
                         </div>
                     </div>
 
-                    {/* Teachers list sidebar */}
                     <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                         <div className="border-b border-neutral-100 pb-4 dark:border-neutral-800">
                             <h2 className="flex items-center gap-2 text-base font-bold text-neutral-900 dark:text-white">
                                 <GraduationCap className="size-4 text-rose-500" />
-                                Đội Ngũ Giảng Viên IELTS
+                                Đội Ngũ Giảng Viên
                             </h2>
-                            <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-                                Các giảng viên đứng lớp xuất sắc đạt rating cao
-                            </p>
                         </div>
 
-                        {/* Teachers List */}
                         <div className="mt-6 divide-y divide-neutral-100 dark:divide-neutral-800">
                             {updatedTeachers.map((teacher, index) => (
-                                <div
-                                    key={index}
-                                    className="flex items-center justify-between py-4 first:pt-0 last:pb-0"
-                                >
+                                <div key={index} className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
                                     <div className="flex items-center gap-3">
-                                        {/* Avatar placeholder with initials & gradient */}
-                                        <div
-                                            className={`relative flex size-10 items-center justify-center rounded-full bg-gradient-to-br ${teacher.avatarColor} text-sm font-extrabold text-white shadow-inner`}
-                                        >
-                                            {teacher.name
-                                                .split(' ')
-                                                .pop()
-                                                ?.substring(0, 2)
-                                                .toUpperCase()}
-                                            {/* Status indicator */}
-                                            <span
-                                                className={`absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-white dark:border-neutral-900 ${
-                                                    teacher.status === 'online'
-                                                        ? 'bg-emerald-500'
-                                                        : 'animate-pulse bg-amber-500'
-                                                }`}
-                                                title={
-                                                    teacher.status === 'online'
-                                                        ? 'Sẵn sàng đứng lớp'
-                                                        : 'Đang trong ca dạy'
-                                                }
-                                            />
+                                        <div className={`relative flex size-10 items-center justify-center rounded-full bg-gradient-to-br ${teacher.avatarColor} text-sm font-extrabold text-white shadow-inner`}>
+                                            {teacher.name.split(' ').pop()?.substring(0, 2).toUpperCase()}
+                                            <span className={`absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-white dark:border-neutral-900 ${teacher.status === 'online' ? 'bg-emerald-500' : 'animate-pulse bg-amber-500'}`} />
                                         </div>
                                         <div>
-                                            <h4 className="text-sm font-semibold text-neutral-900 dark:text-white">
-                                                {teacher.name}
-                                            </h4>
-                                            <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
-                                                {teacher.role}
-                                            </p>
-                                            <div className="mt-0.5 flex items-center gap-1.5">
-                                                <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
-                                                    {teacher.credentials}
-                                                </span>
-                                                <span className="text-[9px] text-neutral-300 dark:text-neutral-700">
-                                                    |
-                                                </span>
-                                                <span
-                                                    className={`text-[10px] font-bold ${
-                                                        teacher.status ===
-                                                        'online'
-                                                            ? 'text-emerald-600'
-                                                            : 'text-amber-650 dark:text-amber-400'
-                                                    }`}
-                                                >
-                                                    {teacher.status === 'online'
-                                                        ? 'Chờ lớp'
-                                                        : 'Đang đứng lớp'}
-                                                </span>
-                                            </div>
+                                            <h4 className="text-sm font-semibold text-neutral-900 dark:text-white">{teacher.name}</h4>
+                                            <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">{teacher.role}</p>
                                         </div>
                                     </div>
-
-                                    {/* Ratings & Classes Count */}
                                     <div className="text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             <Star className="size-3.5 fill-amber-400 stroke-amber-400" />
-                                            <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
-                                                {teacher.rating}
-                                            </span>
+                                            <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">{teacher.rating}</span>
                                         </div>
-                                        <p className="mt-0.5 text-[10px] text-neutral-400">
-                                            {teacher.activeClasses} lớp đang phụ
-                                            trách
-                                        </p>
                                     </div>
                                 </div>
                             ))}
@@ -1253,45 +1014,27 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Recent Activities Section */}
                 <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                     <div className="border-b border-neutral-100 pb-4 dark:border-neutral-800">
                         <h2 className="flex items-center gap-2 text-base font-bold text-neutral-900 dark:text-white">
                             <Activity className="size-4 text-indigo-500" />
-                            Hoạt Động Gần Đây tại Trung Tâm
+                            Hoạt Động Gần Đây
                         </h2>
-                        <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-                            Cập nhật tiến trình học tập, chấm điểm và đăng ký
-                            mới nhất
-                        </p>
                     </div>
 
                     <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                         {recentActivities.map((act) => {
                             const ActIcon = act.icon;
                             return (
-                                <div
-                                    key={act.id}
-                                    className="dark:border-neutral-850 flex items-start gap-3 rounded-lg border border-neutral-100/50 bg-neutral-50/50 p-4 transition-all hover:bg-neutral-50 dark:bg-neutral-950/20 dark:hover:bg-neutral-950/40"
-                                >
-                                    <div
-                                        className={`shrink-0 rounded-lg p-2 ${act.iconBg}`}
-                                    >
+                                <div key={act.id} className="flex items-start gap-3 rounded-lg border border-neutral-100/50 bg-neutral-50/50 p-4 transition-all hover:bg-neutral-50 dark:bg-neutral-950/20 dark:hover:bg-neutral-950/40">
+                                    <div className={`shrink-0 rounded-lg p-2 ${act.iconBg}`}>
                                         <ActIcon className="size-4" />
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-xs leading-normal text-neutral-600 dark:text-neutral-300">
-                                            <strong className="font-bold text-neutral-900 dark:text-white">
-                                                {act.student}
-                                            </strong>{' '}
-                                            {act.action}{' '}
-                                            <span className="font-semibold text-indigo-600 dark:text-indigo-400">
-                                                {act.target}
-                                            </span>
+                                            <strong className="font-bold text-neutral-900 dark:text-white">{act.student}</strong> {act.action} <span className="font-semibold text-indigo-600 dark:text-indigo-400">{act.target}</span>
                                         </p>
-                                        <span className="block text-[10px] text-neutral-400">
-                                            {act.time}
-                                        </span>
+                                        <span className="block text-[10px] text-neutral-400">{act.time}</span>
                                     </div>
                                 </div>
                             );
