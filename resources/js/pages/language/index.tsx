@@ -83,8 +83,10 @@ export default function LanguageIndex() {
         const normalizedStatus = Number(currentStatus);
         const newStatus = normalizedStatus === 1 ? 2 : 1;
         try {
-            const response = await api.patch(`/${pageHeading.module}/${id}`, {
-                publish: newStatus,
+            const response = await api.post(`/${pageHeading.module}/change-status`, {
+                id: id,
+                value: newStatus,
+                field: 'publish',
             });
             if (response.data.status === 'success') {
                 toast.success('Cập nhật trạng thái thành công');

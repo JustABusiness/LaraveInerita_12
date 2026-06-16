@@ -149,31 +149,57 @@ export default function LanguageSave({ id }: LanguageSaveProps) {
                                     description="Nhập đầy đủ các thông tin dưới đây để quản lý ngôn ngữ"
                                     className="border-zinc-200 bg-white shadow-sm"
                                 >
-                                    <div className="mb-[24px]">
-                                        <Label
-                                            htmlFor="name"
-                                            className="mb-[10px] text-[13px] font-semibold text-zinc-700"
-                                        >
-                                            Tên ngôn ngữ{' '}
-                                            <span className="text-rose-500">
-                                                *
-                                            </span>
-                                        </Label>
-                                        <Input
-                                            id="name"
-                                            type="text"
-                                            name="name"
-                                            autoFocus
-                                            autoComplete="name"
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            className="mt-1 block w-full rounded-[5px] border-zinc-200 text-black focus:border-indigo-500 focus:ring-indigo-500"
-                                            placeholder="Nhập tên ngôn ngữ..."
-                                        />
-                                        <InputError
-                                            message={errors.name}
-                                            className="mt-[5px]"
-                                        />
+                                    <div className="mb-[24px] grid grid-cols-2 gap-6">
+                                        <div className="col-span-1">
+                                            <Label
+                                                htmlFor="name"
+                                                className="mb-[10px] text-[13px] font-semibold text-zinc-700"
+                                            >
+                                                Tên ngôn ngữ{' '}
+                                                <span className="text-rose-500">
+                                                    *
+                                                </span>
+                                            </Label>
+                                            <Input
+                                                id="name"
+                                                type="text"
+                                                name="name"
+                                                autoFocus
+                                                autoComplete="name"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                className="mt-1 block w-full rounded-[5px] border-zinc-200 text-black focus:border-indigo-500 focus:ring-indigo-500"
+                                                placeholder="Nhập tên ngôn ngữ..."
+                                            />
+                                            <InputError
+                                                message={errors.name}
+                                                className="mt-[5px]"
+                                            />
+                                        </div>
+                                        <div className="col-span-1">
+                                            <Label
+                                                htmlFor="canonical"
+                                                className="mb-[10px] text-[13px] font-semibold text-zinc-700"
+                                            >
+                                                Từ khoá{' '}
+                                                <span className="text-rose-500">
+                                                    *
+                                                </span>
+                                            </Label>
+                                            <Input
+                                                id="canonical"
+                                                type="text"
+                                                name="canonical"
+                                                value={formData.canonical}
+                                                onChange={handleChange}
+                                                className="mt-1 block w-full rounded-[5px] border-zinc-200 text-black focus:border-indigo-500 focus:ring-indigo-500"
+                                                placeholder="Nhập từ khoá (ví dụ: vn, en)..."
+                                            />
+                                            <InputError
+                                                message={errors.canonical}
+                                                className="mt-[5px]"
+                                            />
+                                        </div>
                                     </div>
                                     <div className="mb-[24px]">
                                         <Label

@@ -57,4 +57,10 @@ class LanguageController extends BaseController
         $response = $this->service->bulkDestroy($request);
         return $this->handleAction($request, $response);
     } 
+
+    public function changeStatus(Request $request): JsonResponse
+    {
+        $response = $this->service->updateStatus($request->input());
+        return $this->handleAction($request, $response);
+    }
 }
