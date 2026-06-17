@@ -20,7 +20,6 @@ const CustomPageHeading = ({
             <ol className="custom-breadcrumb flex items-center gap-2 text-sm text-zinc-500">
                 {breadcrumbs.map((item, index) => (
                     <li key={item.title} className="flex items-center gap-2">
-                        {index > 0 && <span className="text-zinc-300">/</span>}
                         <Link
                             href={item.href}
                             className={`transition-colors hover:text-indigo-600 ${index === breadcrumbs.length - 1 ? 'font-medium text-zinc-900' : ''}`}

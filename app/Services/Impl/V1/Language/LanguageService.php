@@ -25,6 +25,13 @@ class LanguageService extends BaseService implements LanguageServiceInterface
     {
         $fillable = $this->repository->getFillable();
         $this->modelData = $this->request->only($fillable);
+
+        if ($this->request->hasFile('image')) {
+            $file = $this->request->file('image');
+            $path = $file->store('languages', 'public');
+            $this->modelData['image'] = '/storage/' . $path;
+        }
+
         $this->modelData['user_id'] = Auth::id();
         return $this;
     }

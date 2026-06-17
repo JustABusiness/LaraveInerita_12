@@ -11,8 +11,8 @@ import api from '@/lib/api';
 import { dashboard } from '@/routes/index';
 import { IDateTime, type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { Loader2, LoaderCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ImagePlus, Loader2, LoaderCircle, X } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
 import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -30,6 +30,7 @@ export interface Language extends IDateTime {
     id: number;
     name: string;
     canonical: string;
+    image: string;
     description: string;
 }
 
@@ -42,11 +43,19 @@ export default function LanguageSave({ id }: LanguageSaveProps) {
     const [loading, setLoading] = useState(isEdit);
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<{
+        name: string;
+        canonical: string;
+        description: string;
+        image: string | File | null;
+    }>({
         name: '',
         canonical: '',
         description: '',
+        image: null,
     });
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (isEdit) {
@@ -54,9 +63,12 @@ export default function LanguageSave({ id }: LanguageSaveProps) {
                 try {
                     const response = await api.get(`/language/${id}`);
                     if (response.data.status === 'success') {
-                        const { name, canonical, description } =
+                        const { name, canonical, description, image } =
                             response.data.data;
-                        setFormData({ name, canonical, description });
+                        setFormData({ name, canonical, description, image });
+                        if (image) {
+                            setImagePreview(image);
+                        }
                     }
                 } catch (error) {
                     toast.error('Không thể tải thông tin bản ghi');
@@ -82,15 +94,52 @@ export default function LanguageSave({ id }: LanguageSaveProps) {
         }
     };
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setFormData((prev) => ({ ...prev, image: file }));
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeImage = () => {
+        setFormData((prev) => ({ ...prev, image: null }));
+        setImagePreview(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent, redirectAfter = false) => {
         e.preventDefault();
         setProcessing(true);
         setErrors({});
 
+        const data = new FormData();
+        data.append('name', formData.name);
+        data.append('canonical', formData.canonical);
+        data.append('description', formData.description);
+        if (formData.image instanceof File) {
+            data.append('image', formData.image);
+        }
+
+        // For PUT requests with files in Laravel, we often need to use POST with _method=PUT
+        if (isEdit) {
+            data.append('_method', 'PUT');
+        }
+
         try {
             const response = isEdit
-                ? await api.put(`/language/${id}`, formData)
-                : await api.post('/language', formData);
+                ? await api.post(`/language/${id}`, data, {
+                      headers: { 'Content-Type': 'multipart/form-data' },
+                  })
+                : await api.post('/language', data, {
+                      headers: { 'Content-Type': 'multipart/form-data' },
+                  });
 
             if (response.data.status === 'success') {
                 toast.success(
@@ -99,7 +148,8 @@ export default function LanguageSave({ id }: LanguageSaveProps) {
                 if (redirectAfter) {
                     router.visit('/language');
                 } else if (!isEdit) {
-                    setFormData({ name: '', canonical: '', description: '' });
+                    setFormData({ name: '', canonical: '', description: '', image: null });
+                    setImagePreview(null);
                 }
             }
         } catch (error: any) {
@@ -140,6 +190,53 @@ export default function LanguageSave({ id }: LanguageSaveProps) {
                     <div className="grid grid-cols-12 gap-6">
                         <div className="col-span-12 lg:col-span-4">
                             <CustomNotice />
+                            
+                            <CustomCard
+                                isShowHeader={true}
+                                title="Ảnh đại diện"
+                                description="Tải lên biểu tượng hoặc quốc kỳ của ngôn ngữ"
+                                className="mt-6 border-zinc-200 bg-white shadow-sm"
+                            >
+                                <div className="flex flex-col items-center justify-center">
+                                    <div 
+                                        className="relative flex h-40 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 transition-colors hover:bg-zinc-100"
+                                        onClick={() => fileInputRef.current?.click()}
+                                    >
+                                        {imagePreview ? (
+                                            <>
+                                                <img 
+                                                    src={imagePreview} 
+                                                    alt="Preview" 
+                                                    className="h-full w-full object-contain p-2"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        removeImage();
+                                                    }}
+                                                    className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-white shadow-md hover:bg-rose-600"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <div className="flex flex-col items-center">
+                                                <ImagePlus className="mb-2 h-10 w-10 text-zinc-400" />
+                                                <span className="text-sm text-zinc-500">Click để tải ảnh lên</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <input 
+                                        type="file" 
+                                        ref={fileInputRef}
+                                        onChange={handleImageChange}
+                                        accept="image/*"
+                                        className="hidden"
+                                    />
+                                    <InputError message={errors.image} className="mt-2" />
+                                </div>
+                            </CustomCard>
                         </div>
                         <div className="col-span-12 lg:col-span-8">
                             <form onSubmit={(e) => handleSubmit(e, false)}>

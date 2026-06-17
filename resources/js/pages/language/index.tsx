@@ -35,9 +35,11 @@ interface Language {
     id: number;
     name: string;
     canonical: string;
+    image: string;
     description: string;
     publish: number;
     created_at: string;
+    updated_at: string;
 }
 
 export default function LanguageIndex() {
@@ -227,6 +229,9 @@ export default function LanguageIndex() {
                                             ID
                                         </th>
                                         <th className="h-12 px-4 text-left align-middle text-[11px] font-bold tracking-wider text-zinc-900 uppercase">
+                                            Hình ảnh
+                                        </th>
+                                        <th className="h-12 px-4 text-left align-middle text-[11px] font-bold tracking-wider text-zinc-900 uppercase">
                                             Tên ngôn ngữ
                                         </th>
                                         <th className="h-12 px-4 text-left align-middle text-[11px] font-bold tracking-wider text-zinc-900 uppercase">
@@ -237,6 +242,9 @@ export default function LanguageIndex() {
                                         </th>
                                         <th className="h-12 px-4 text-left align-middle text-[11px] font-bold tracking-wider text-zinc-900 uppercase">
                                             Ngày tạo
+                                        </th>
+                                        <th className="h-12 px-4 text-left align-middle text-[11px] font-bold tracking-wider text-zinc-900 uppercase">
+                                            Ngày sửa
                                         </th>
                                         <th className="h-12 px-4 text-center align-middle text-[11px] font-bold tracking-wider text-zinc-900 uppercase">
                                             Tình trạng
@@ -282,6 +290,17 @@ export default function LanguageIndex() {
                                                 <td className="p-4 align-middle font-medium text-zinc-900">
                                                     {item.id}
                                                 </td>
+                                                <td className="p-4 text-center align-middle">
+                                                    {item.image ? (
+                                                        <img 
+                                                            src={item.image} 
+                                                            alt={item.name} 
+                                                            className="mx-auto h-8 w-12 object-contain"
+                                                        />
+                                                    ) : (
+                                                        <span className="text-zinc-300 text-[10px] italic">No image</span>
+                                                    )}
+                                                </td>
                                                 <td className="p-4 align-middle font-medium text-zinc-700">
                                                     {item.name}
                                                 </td>
@@ -293,6 +312,9 @@ export default function LanguageIndex() {
                                                 </td>
                                                 <td className="p-4 align-middle text-zinc-500">
                                                     {item.created_at}
+                                                </td>
+                                                <td className="p-4 align-middle text-zinc-500">
+                                                    {item.updated_at}
                                                 </td>
                                                 <td className="p-4 text-center align-middle">
                                                     <button
@@ -354,7 +376,7 @@ export default function LanguageIndex() {
                                     ) : (
                                         <tr>
                                             <td
-                                                colSpan={7}
+                                                colSpan={9}
                                                 className="bg-white p-20 text-center text-zinc-400 italic"
                                             >
                                                 Không có dữ liệu trong danh sách

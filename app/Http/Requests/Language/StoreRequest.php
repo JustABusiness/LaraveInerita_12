@@ -18,6 +18,7 @@ class StoreRequest extends FormRequest
              'name' => 'required|string|max:255',
              'canonical' => 'required|string|max:255',
              'description' => 'nullable|string',
+             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
              'publish' => 'sometimes|required|in:1,2',
         ];
     } 
@@ -27,6 +28,7 @@ class StoreRequest extends FormRequest
         return [
             'name' => 'Tên ngôn ngữ',
             'canonical' => 'Từ khoá',
+            'image' => 'Ảnh đại diện',
             'description' => 'Mô tả',
         ];
     }

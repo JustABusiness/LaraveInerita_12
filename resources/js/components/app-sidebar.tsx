@@ -57,12 +57,12 @@ const mainNavItems: NavItem[] = [
 const footerNavItems: NavItem[] = [
     {
         title: 'Tài liệu IELTS',
-        href: '#',
+        href: '/ielts/documents',
         icon: BookOpen,
     },
     {
         title: 'Đề thi mẫu (Mock)',
-        href: '#',
+        href: '/ielts/mock-tests',
         icon: Folder,
     },
 ];

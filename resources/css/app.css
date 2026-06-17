@@ -159,3 +159,13 @@
 .page-container {
     padding: 20px;
 }
+
+@keyframes gentle-wobble {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+}
+
+.animate-wobble {
+    animation: gentle-wobble 2s ease-in-out infinite;
+}
