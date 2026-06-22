@@ -21,4 +21,4 @@ require __DIR__.'/route/user.php';
 require __DIR__.'/route/permission.php';
 require __DIR__.'/route/language.php';
 require __DIR__.'/route/ielts.php';
-
+require __DIR__.'/route/post_catalogue.php';

@@ -52,6 +52,17 @@ const mainNavItems: NavItem[] = [
             },
         ],
     },
+    {
+        title: 'QL Bài Viết',
+        href: '#',
+        icon: BookOpen,
+        items: [
+            {
+                title: 'Nhóm Bài Viết',
+                url: '/post_catalogue',
+            },
+        ],
+    },
 ];
 
 const footerNavItems: NavItem[] = [

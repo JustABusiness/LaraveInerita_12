@@ -12,6 +12,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Services\Interfaces\User\UserServiceInterface::class => \App\Services\Impl\V1\User\UserService::class,
         \App\Services\Interfaces\Permission\PermissionServiceInterface::class => \App\Services\Impl\V1\Permission\PermissionService::class,
         \App\Services\Interfaces\Language\LanguageServiceInterface::class => \App\Services\Impl\V1\Language\LanguageService::class,
+        \App\Services\Interfaces\Post\PostCatalogueServiceInterface::class => \App\Services\Impl\V1\Post\PostCatalogueService::class,
     ];
 
     /** 
