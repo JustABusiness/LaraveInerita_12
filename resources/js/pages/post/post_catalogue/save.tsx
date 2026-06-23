@@ -39,6 +39,33 @@ interface PostCatalogueSaveProps {
     id?: string;
 }
 
+class Base64UploadAdapter {
+    loader: any;
+    constructor(loader: any) {
+        this.loader = loader;
+    }
+    upload() {
+        return this.loader.file.then(
+            (file: File) =>
+                new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        resolve({ default: reader.result });
+                    };
+                    reader.onerror = (error) => reject(error);
+                    reader.readAsDataURL(file);
+                })
+        );
+    }
+    abort() {}
+}
+
+function CustomUploadAdapterPlugin(editor: any) {
+    editor.plugins.get('FileRepository').createUploadAdapter = (loader: any) => {
+        return new Base64UploadAdapter(loader);
+    };
+}
+
 export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
     const isEdit = !!id;
     const [loading, setLoading] = useState(isEdit);
@@ -307,8 +334,16 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
                                             Mô tả chi tiết
                                         </Label>
                                         <div className="prose prose-sm max-w-none rounded-[5px] border border-zinc-200 text-black">
+                                            <style>{`
+                                                .ck-editor__editable_inline {
+                                                    min-height: 300px;
+                                                }
+                                            `}</style>
                                             <CKEditor
                                                 editor={ClassicEditor}
+                                                config={{
+                                                    extraPlugins: [CustomUploadAdapterPlugin],
+                                                }}
                                                 data={formData.description}
                                                 onChange={(event, editor) => {
                                                     const data = editor.getData();
