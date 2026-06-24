@@ -31,7 +31,6 @@ export interface PostCatalogue extends IDateTime {
     id: number;
     name: string;
     canonical: string;
-    image: string;
     description: string;
 }
 
@@ -75,15 +74,11 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
         name: string;
         canonical: string;
         description: string;
-        image: string | File | null;
     }>({
         name: '',
         canonical: '',
         description: '',
-        image: null,
     });
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (isEdit) {
@@ -91,12 +86,9 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
                 try {
                     const response = await api.get(`/post_catalogue/${id}`);
                     if (response.data.status === 'success') {
-                        const { name, canonical, description, image } =
+                        const { name, canonical, description } =
                             response.data.data;
-                        setFormData({ name, canonical, description, image });
-                        if (image) {
-                            setImagePreview(image);
-                        }
+                        setFormData({ name, canonical, description });
                     }
                 } catch (error) {
                     toast.error('Không thể tải thông tin bản ghi');
@@ -122,25 +114,7 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
         }
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setFormData((prev) => ({ ...prev, image: file }));
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
 
-    const removeImage = () => {
-        setFormData((prev) => ({ ...prev, image: null }));
-        setImagePreview(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-    };
 
     const handleSubmit = async (e: React.FormEvent, redirectAfter = false) => {
         e.preventDefault();
@@ -151,9 +125,6 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
         data.append('name', formData.name);
         data.append('canonical', formData.canonical);
         data.append('description', formData.description);
-        if (formData.image instanceof File) {
-            data.append('image', formData.image);
-        }
 
         // For PUT requests with files in Laravel, we often need to use POST with _method=PUT
         if (isEdit) {
@@ -176,8 +147,7 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
                 if (redirectAfter) {
                     router.visit('/post_catalogue');
                 } else if (!isEdit) {
-                    setFormData({ name: '', canonical: '', description: '', image: null });
-                    setImagePreview(null);
+                    setFormData({ name: '', canonical: '', description: '' });
                 }
             }
         } catch (error: any) {
@@ -216,57 +186,8 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
                 />
                 <div className="page-container px-6 pb-10">
                     <div className="grid grid-cols-12 gap-6">
-                        <div className="col-span-12 lg:col-span-4">
+                        <div className="col-span-12">
                             <CustomNotice />
-                            
-                            <CustomCard
-                                isShowHeader={true}
-                                title="Ảnh đại diện"
-                                description="Tải lên ảnh đại diện của nhóm bài viết"
-                                className="mt-6 border-zinc-200 bg-white shadow-sm"
-                            >
-                                <div className="flex flex-col items-center justify-center">
-                                    <div 
-                                        className="relative flex h-40 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 transition-colors hover:bg-zinc-100"
-                                        onClick={() => fileInputRef.current?.click()}
-                                    >
-                                        {imagePreview ? (
-                                            <>
-                                                <img 
-                                                    src={imagePreview} 
-                                                    alt="Preview" 
-                                                    className="h-full w-full object-contain p-2"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        removeImage();
-                                                    }}
-                                                    className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-white shadow-md hover:bg-rose-600"
-                                                >
-                                                    <X className="h-4 w-4" />
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <div className="flex flex-col items-center">
-                                                <ImagePlus className="mb-2 h-10 w-10 text-zinc-400" />
-                                                <span className="text-sm text-zinc-500">Click để tải ảnh lên</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <input 
-                                        type="file" 
-                                        ref={fileInputRef}
-                                        onChange={handleImageChange}
-                                        accept="image/*"
-                                        className="hidden"
-                                    />
-                                    <InputError message={errors.image} className="mt-2" />
-                                </div>
-                            </CustomCard>
-                        </div>
-                        <div className="col-span-12 lg:col-span-8">
                             <form onSubmit={(e) => handleSubmit(e, false)}>
                                 <CustomCard
                                     isShowHeader={true}
