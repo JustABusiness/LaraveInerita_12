@@ -12,7 +12,7 @@ import api from '@/lib/api';
 import { dashboard } from '@/routes/index';
 import { IDateTime, type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { ImagePlus, Loader2, LoaderCircle, X } from 'lucide-react';
+import { ImagePlus, Loader2, LoaderCircle, X, UploadCloud } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { toast } from 'sonner';
 
@@ -35,6 +35,7 @@ export interface PostCatalogue extends IDateTime {
     meta_title: string;
     meta_keyword: string;
     meta_description: string;
+    album: (string | File)[];
 }
 
 interface PostCatalogueSaveProps {
@@ -80,6 +81,7 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
         meta_title: string;
         meta_keyword: string;
         meta_description: string;
+        album: (string | File)[];
     }>({
         name: '',
         canonical: '',
@@ -87,7 +89,10 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
         meta_title: '',
         meta_keyword: '',
         meta_description: '',
+        album: [],
     });
+    const [albumPreviews, setAlbumPreviews] = useState<string[]>([]);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (isEdit) {
@@ -95,9 +100,11 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
                 try {
                     const response = await api.get(`/post_catalogue/${id}`);
                     if (response.data.status === 'success') {
-                        const { name, canonical, description, meta_title, meta_keyword, meta_description } =
+                        const { name, canonical, description, meta_title, meta_keyword, meta_description, album } =
                             response.data.data;
-                        setFormData({ name, canonical, description, meta_title: meta_title || '', meta_keyword: meta_keyword || '', meta_description: meta_description || '' });
+                        const parsedAlbum = typeof album === 'string' ? JSON.parse(album) : (album || []);
+                        setFormData({ name, canonical, description, meta_title: meta_title || '', meta_keyword: meta_keyword || '', meta_description: meta_description || '', album: parsedAlbum });
+                        setAlbumPreviews(parsedAlbum);
                     }
                 } catch (error) {
                     toast.error('Không thể tải thông tin bản ghi');
@@ -123,6 +130,34 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
         }
     };
 
+    const handleAlbumChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length > 0) {
+            setFormData((prev) => ({ ...prev, album: [...prev.album, ...files] }));
+            
+            const newPreviews = files.map(file => URL.createObjectURL(file));
+            setAlbumPreviews(prev => [...prev, ...newPreviews]);
+        }
+    };
+
+    const removeAlbumImage = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            album: prev.album.filter((_, i) => i !== index)
+        }));
+        setAlbumPreviews(prev => {
+            const newPreviews = [...prev];
+            if (newPreviews[index] && newPreviews[index].startsWith('blob:')) {
+                URL.revokeObjectURL(newPreviews[index]);
+            }
+            newPreviews.splice(index, 1);
+            return newPreviews;
+        });
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
 
 
     const handleSubmit = async (e: React.FormEvent, redirectAfter = false) => {
@@ -137,6 +172,14 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
         data.append('meta_title', formData.meta_title);
         data.append('meta_keyword', formData.meta_keyword);
         data.append('meta_description', formData.meta_description);
+
+        formData.album.forEach((file, index) => {
+            if (file instanceof File) {
+                data.append(`album[${index}]`, file);
+            } else {
+                data.append(`album[${index}]`, file);
+            }
+        });
 
         // For PUT requests with files in Laravel, we often need to use POST with _method=PUT
         if (isEdit) {
@@ -159,7 +202,8 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
                 if (redirectAfter) {
                     router.visit('/post_catalogue');
                 } else if (!isEdit) {
-                    setFormData({ name: '', canonical: '', description: '', meta_title: '', meta_keyword: '', meta_description: '' });
+                    setFormData({ name: '', canonical: '', description: '', meta_title: '', meta_keyword: '', meta_description: '', album: [] });
+                    setAlbumPreviews([]);
                 }
             }
         } catch (error: any) {
@@ -197,10 +241,10 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
                     breadcrumbs={breadcrumbs}
                 />
                 <div className="page-container px-6 pb-10">
-                    <div className="grid grid-cols-12 gap-6">
-                        <div className="col-span-12">
-                            <CustomNotice />
-                            <form onSubmit={(e) => handleSubmit(e, false)}>
+                    <form onSubmit={(e) => handleSubmit(e, false)}>
+                        <div className="grid grid-cols-12 gap-6">
+                            <div className="col-span-12 lg:col-span-8">
+                                <CustomNotice />
                                 <CustomCard
                                     isShowHeader={true}
                                     title="Thông tin chung"
@@ -379,7 +423,7 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
                                         <InputError message={errors.meta_description} className="mt-[5px]" />
                                     </div>
                                     
-                                    <div className="flex justify-end space-x-3 border-t border-zinc-100 pt-4">
+                                    <div className="mt-6 flex justify-end space-x-3 border-t border-zinc-100 pt-4">
                                         <Button
                                             type="submit"
                                             disabled={processing}
@@ -405,9 +449,61 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
                                         </Button>
                                     </div>
                                 </CustomCard>
-                            </form>
+                            </div>
+
+                            <div className="col-span-12 lg:col-span-4">
+                                <CustomCard
+                                    isShowHeader={true}
+                                    title="Album hình ảnh"
+                                    description="Tải lên thư viện ảnh cho nhóm bài viết"
+                                    className="border-zinc-200 bg-white shadow-sm"
+                                >
+                                    <div className="flex flex-col items-center justify-center">
+                                        <div 
+                                            className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 p-6 transition-colors hover:bg-zinc-100"
+                                            onClick={() => fileInputRef.current?.click()}
+                                        >
+                                            <div className="flex flex-col items-center text-center">
+                                                <UploadCloud className="mb-2 h-8 w-8 text-zinc-400" />
+                                                <span className="text-sm font-medium text-zinc-600">Click để tải ảnh lên</span>
+                                                <span className="mt-1 text-xs text-zinc-500">Hỗ trợ JPG, PNG, WEBP</span>
+                                            </div>
+                                            <input 
+                                                type="file" 
+                                                ref={fileInputRef}
+                                                onChange={handleAlbumChange}
+                                                accept="image/*"
+                                                multiple
+                                                className="hidden"
+                                            />
+                                        </div>
+                                        <InputError message={errors.album} className="mt-2" />
+                                    </div>
+                                    
+                                    {albumPreviews.length > 0 && (
+                                        <div className="mt-4 grid grid-cols-2 gap-3">
+                                            {albumPreviews.map((preview, index) => (
+                                                <div key={index} className="group relative aspect-square overflow-hidden rounded-md border border-zinc-200">
+                                                    <img 
+                                                        src={preview} 
+                                                        alt={`Album ${index}`} 
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeAlbumImage(index)}
+                                                        className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100 hover:bg-rose-600"
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </CustomCard>
+                            </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </AppLayout>
