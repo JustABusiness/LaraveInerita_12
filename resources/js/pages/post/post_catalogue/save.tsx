@@ -32,6 +32,9 @@ export interface PostCatalogue extends IDateTime {
     name: string;
     canonical: string;
     description: string;
+    meta_title: string;
+    meta_keyword: string;
+    meta_description: string;
 }
 
 interface PostCatalogueSaveProps {
@@ -74,10 +77,16 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
         name: string;
         canonical: string;
         description: string;
+        meta_title: string;
+        meta_keyword: string;
+        meta_description: string;
     }>({
         name: '',
         canonical: '',
         description: '',
+        meta_title: '',
+        meta_keyword: '',
+        meta_description: '',
     });
 
     useEffect(() => {
@@ -86,9 +95,9 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
                 try {
                     const response = await api.get(`/post_catalogue/${id}`);
                     if (response.data.status === 'success') {
-                        const { name, canonical, description } =
+                        const { name, canonical, description, meta_title, meta_keyword, meta_description } =
                             response.data.data;
-                        setFormData({ name, canonical, description });
+                        setFormData({ name, canonical, description, meta_title: meta_title || '', meta_keyword: meta_keyword || '', meta_description: meta_description || '' });
                     }
                 } catch (error) {
                     toast.error('Không thể tải thông tin bản ghi');
@@ -125,6 +134,9 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
         data.append('name', formData.name);
         data.append('canonical', formData.canonical);
         data.append('description', formData.description);
+        data.append('meta_title', formData.meta_title);
+        data.append('meta_keyword', formData.meta_keyword);
+        data.append('meta_description', formData.meta_description);
 
         // For PUT requests with files in Laravel, we often need to use POST with _method=PUT
         if (isEdit) {
@@ -147,7 +159,7 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
                 if (redirectAfter) {
                     router.visit('/post_catalogue');
                 } else if (!isEdit) {
-                    setFormData({ name: '', canonical: '', description: '' });
+                    setFormData({ name: '', canonical: '', description: '', meta_title: '', meta_keyword: '', meta_description: '' });
                 }
             }
         } catch (error: any) {
@@ -285,6 +297,88 @@ export default function PostCatalogueSave({ id }: PostCatalogueSaveProps) {
                                         />
                                     </div>
 
+                                </CustomCard>
+
+                                <CustomCard
+                                    isShowHeader={true}
+                                    title="Cấu hình SEO"
+                                    description="Bạn chưa có tiêu đề SEO cho trang này"
+                                    className="border-zinc-200 bg-white shadow-sm mb-[24px] mt-6"
+                                >
+                                    <div className="mb-[24px] rounded-[5px] border border-zinc-200 bg-zinc-50 p-4">
+                                        <div className="mb-1 text-[13px] text-zinc-500">
+                                            http://yourdomain.com/{formData.canonical || 'duong-dan-cua-ban'}
+                                        </div>
+                                        <div className="cursor-pointer truncate text-[18px] text-blue-600 hover:underline">
+                                            {formData.meta_title || formData.name || 'Tiêu đề trang SEO sẽ hiển thị ở đây'}
+                                        </div>
+                                        <div className="mt-1 line-clamp-2 text-[13px] text-zinc-600">
+                                            {formData.meta_description || formData.description?.replace(/<[^>]*>?/gm, '') || 'Cung cấp một thẻ mô tả bằng cách sửa đổi đoạn trích dẫn bên dưới. Nếu bạn không có thẻ mô tả, Google sẽ thử tìm một phần thích hợp trong bài viết của bạn để hiển thị cho kết quả tìm kiếm.'}
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-[24px]">
+                                        <Label
+                                            htmlFor="meta_title"
+                                            className="mb-[10px] text-[13px] font-semibold text-zinc-700"
+                                        >
+                                            Tiêu đề SEO
+                                        </Label>
+                                        <Input
+                                            id="meta_title"
+                                            type="text"
+                                            name="meta_title"
+                                            value={formData.meta_title}
+                                            onChange={handleChange}
+                                            className="mt-1 block w-full rounded-[5px] border-zinc-200 text-black focus:border-indigo-500 focus:ring-indigo-500"
+                                            placeholder="Nhập tiêu đề SEO..."
+                                        />
+                                        <div className="mt-1 flex justify-end text-[12px] text-zinc-500">
+                                            {formData.meta_title.length} trên 70 ký tự
+                                        </div>
+                                        <InputError message={errors.meta_title} className="mt-[5px]" />
+                                    </div>
+
+                                    <div className="mb-[24px]">
+                                        <Label
+                                            htmlFor="meta_keyword"
+                                            className="mb-[10px] text-[13px] font-semibold text-zinc-700"
+                                        >
+                                            Từ khóa SEO
+                                        </Label>
+                                        <Input
+                                            id="meta_keyword"
+                                            type="text"
+                                            name="meta_keyword"
+                                            value={formData.meta_keyword}
+                                            onChange={handleChange}
+                                            className="mt-1 block w-full rounded-[5px] border-zinc-200 text-black focus:border-indigo-500 focus:ring-indigo-500"
+                                            placeholder="Nhập từ khóa SEO (ngăn cách bằng dấu phẩy)..."
+                                        />
+                                        <InputError message={errors.meta_keyword} className="mt-[5px]" />
+                                    </div>
+
+                                    <div className="mb-[24px]">
+                                        <Label
+                                            htmlFor="meta_description"
+                                            className="mb-[10px] text-[13px] font-semibold text-zinc-700"
+                                        >
+                                            Mô tả SEO
+                                        </Label>
+                                        <textarea
+                                            id="meta_description"
+                                            name="meta_description"
+                                            value={formData.meta_description}
+                                            onChange={handleChange}
+                                            className="min-h-[100px] w-full rounded-[5px] border border-zinc-200 p-3 text-[14px] text-black focus:border-indigo-500 focus:ring-indigo-500 outline-none"
+                                            placeholder="Nhập mô tả SEO..."
+                                        />
+                                        <div className="mt-1 flex justify-end text-[12px] text-zinc-500">
+                                            {formData.meta_description.length} trên 320 ký tự
+                                        </div>
+                                        <InputError message={errors.meta_description} className="mt-[5px]" />
+                                    </div>
+                                    
                                     <div className="flex justify-end space-x-3 border-t border-zinc-100 pt-4">
                                         <Button
                                             type="submit"
